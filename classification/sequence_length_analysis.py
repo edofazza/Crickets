@@ -5,22 +5,10 @@ from tensorflow import keras as ks
 import shutil
 from same_size import final_dataset
 from utils import load_dataset
-from iterated_k_fold_cross_validation import permute # TODO: remove k-fold
-from models import get_vanilla
-from resnet import get_resnet18_model, get_resnet34_model, get_resnet50_model
-
-
-def divide_sequence(data_path: str, length: int):
-    # retrieve sequence
-    sequence = np.load(data_path)
-    _, dim = sequence.shape
-
-    dir_path = '/'.join(data_path.split('/')[:-1]) + '/'
-    for i in range(dim - length):
-        tmp_seq = sequence[:, i:i + length]
-        if not os.path.exists(f'{dir_path}dataset{length}'):
-            os.mkdir(f'{dir_path}dataset{length}')
-        np.save(f'{dir_path}dataset{length}/{data_path.split("/")[-1]}_{i}-{i + length}', tmp_seq)
+#from iterated_k_fold_cross_validation import permute  TODO: remove k-fold
+from models.vanilla import get_vanilla
+from models.resnet import get_resnet18_model, get_resnet34_model, get_resnet50_model
+from sequencehandler import SequenceHandler
 
 
 def get_test_indexes(indexes):
@@ -50,7 +38,7 @@ def perform_final_analysis(dir_path, type_):
 
         print(f'SEQUENCE LENGTH: {i}')
         for prediction in predictions:
-            divide_sequence(dir_path + prediction, i)
+            SequenceHandler.divide_sequence(dir_path + prediction, i)
 
         final_dataset(f'{dir_path}dataset{i}/')
 
