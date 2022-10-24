@@ -1,9 +1,19 @@
-class PipelinePE:
+import sleap
+
+
+class Pipeline:
     @classmethod
     def run(cls, video_path):
-        # LOAD VIDEO
-        # is mp4?
-        # RBG or grayscale?
+        if not video_path.endswith('.mp4'):
+            print('The video must be in mp4 format')
+            return
+
+        video = sleap.load_video(video_path)
+        _, _, _, depth = video.shape
+        if depth != 1:
+            print('Video not in grayscale')
+            return
+
         # LENGTH? Divided it in parts
         # LOAD SLEAP MODEL
         # OBTAIN PREDICTION
@@ -16,4 +26,4 @@ class PipelinePE:
 
 
 if __name__ == '__main__':
-    PipelinePE().run('something.mp4')
+    Pipeline().run('something.mp4')
