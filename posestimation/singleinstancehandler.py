@@ -1,10 +1,12 @@
 import json
 from argparse import ArgumentParser
+import os
 
 
 class SingleInstanceHandler:
     def __init__(self, json_path: str, max_stride=32, filters=32,
-                 filters_rate=2.0, input_scaling=0.5):
+                 filters_rate=2.0, input_scaling=0.5, model_path='models',
+                 old_model_path='models'):
         with open(json_path, 'r') as f:
             self.json_content = json.loads(f.read())
 
@@ -12,6 +14,9 @@ class SingleInstanceHandler:
         self.set_filters(filters)
         self.set_filters_rate(filters_rate)
         self.set_input_scaling(input_scaling)
+        self.set_model_path(model_path)
+
+        self.change_job_yaml(model_path, old_model_path)
 
     def save_single_instance_json(self, output_path: str):
         """
@@ -54,6 +59,14 @@ class SingleInstanceHandler:
         """
         self.json_content['data']['preprocessing']['input_scaling'] = input_scaling
 
+    def set_model_path(self, model_path: str):
+        """
+
+        :param model_path: directory where the trained will be saved
+        :return:
+        """
+        self.json_content['outputs']['runs_folder'] = model_path
+
     def get_max_stride(self):
         """
         Get the max_stride value inside self.json_content
@@ -82,6 +95,13 @@ class SingleInstanceHandler:
         """
         return self.json_content['data']['preprocessing']['input_scaling']
 
+    def get_model_path(self):
+        """
+        Get the run_folder inside self.json_content
+        :return:
+        """
+        return self.json_content['outputs']['runs_folder']
+
     def parameter_to_str(self):
         """
         Transform the parameters changed using the class in a string
@@ -89,6 +109,16 @@ class SingleInstanceHandler:
         """
         return str(self.get_max_stride()) + '_' + str(self.get_filters()) + '_' \
                 + str(self.get_filters_rate()) + '_' + str(self.get_input_scaling())
+
+    def change_job_yaml(self, model_path, old_model_path):
+        with open('tmp.yaml', 'w') as out:
+            with open('jobs.yaml', 'r') as f:
+                for i in f:
+                    if old_model_path in i:
+                        i = i.replace(old_model_path, model_path)
+                    out.write(i)
+        os.remove('jobs.yaml')
+        os.rename('tmp.yaml', 'jobs.yaml')
 
 
 def parse():
@@ -98,11 +128,12 @@ def parse():
     parser.add_argument('--filters_rate', type=float, default=2.0)
     parser.add_argument('--input_scaling', type=float, default=0.5)
     parser.add_argument('--json_path', type=str, default='single_instance.json')
+    parser.add_argument('--model_path', type=str, default='models')
     return vars(parser.parse_args())
 
 
 if __name__ == '__main__':
     opt = parse()
     sih = SingleInstanceHandler(opt['json_path'], opt['max_stride'], opt['filters'],
-                                opt['filters_rate'], opt['input_scaling'])
+                                opt['filters_rate'], opt['input_scaling'], opt['model_path'])
     sih.save_single_instance_json(sih.parameter_to_str() + '.json')
