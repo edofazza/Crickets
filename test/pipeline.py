@@ -10,8 +10,8 @@ class Pipeline:
 
         video = sleap.load_video(video_path)
         _, _, _, depth = video.shape
-        if depth != 1:
-            print('Video not in grayscale')
+        if depth == 1:
+            print('Video is not RGB')
             return
 
         # LENGTH? Divided it in parts
