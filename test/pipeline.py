@@ -4,6 +4,20 @@ import sleap
 class Pipeline:
     @classmethod
     def run(cls, video_path):
+        # GET VIDEO
+        # IS MP4
+        # CLIP AND CROP
+        # LOAD VIDEO SLEAP
+        # IS RGB
+        # LOAD SLEAP MODEL
+        # OBTAIN PREDICTIONS SLP
+        # CLEAR TENSORFLOW
+        # OBTAIN NPY FROM SLP
+        # FILL MISSING VALUES
+        # DIVIDE INTO SUBSEQUENCES
+        # PREDICT SUBSEQUENCES
+        # GET SUBSEQUENCES PREDICTIONS + FINAL CONSIDERATION (overall class)
+
         if not video_path.endswith('.mp4'):
             print('The video must be in mp4 format')
             return
