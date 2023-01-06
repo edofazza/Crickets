@@ -104,7 +104,7 @@ def training(seq_dimensions, models_dir, batch_size):
         ]
 
         history = model.fit(
-            train_set, # Tensorflow Dataset
+            train_set,
             epochs=400,
             callbacks=callbacks_list,
             validation_data=val_set,
