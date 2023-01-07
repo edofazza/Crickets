@@ -11,7 +11,7 @@ if __name__=='__main__':
     for max_stride in max_strides:
         for filter in filters:
             for input_scaling in input_scalings:
-                if max_stride == 64 and filters == 64 and input_scaling == 0.7:
+                if max_stride == 64 and filter == 64 and input_scaling == 0.7:
                     continue
 
                 sih = SingleInstanceHandler(
