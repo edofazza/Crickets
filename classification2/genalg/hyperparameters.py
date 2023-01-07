@@ -18,10 +18,10 @@ PRESENT_LOWER_BOUND = 0.0
 PRESENT_UPPER_BOUND = 1.99
 
 """
-Filters (conv1d) can be from 16 to 128
+Filters (conv1d) can be from 16 to 512
 """
 FILTERS_LOWER_BOUND = 16.0
-FILTERS_UPPER_BOUND = 128.99
+FILTERS_UPPER_BOUND = 512.99
 
 """
 Batch can be 0 (not present) or 1 (present)
