@@ -33,7 +33,7 @@ if __name__ == '__main__':
             for video in videos:
                 get_predictions(
                     os.path.join(set_path, video),
-                    'm32_64_1.0/220626_100050.single_instance',
+                    'm64_64_1.0/221226_195308.single_instance',
                     os.path.join(prediction_set_slp_path, video[:-4] + '.pkg.slp'),
                     True
                 )
