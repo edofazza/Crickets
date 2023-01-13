@@ -11,6 +11,8 @@ if __name__ == '__main__':
     os.mkdir(prediction_npy_path)
     classes = os.listdir(path)
     for c in classes: # control sugar ammonia ..
+        if c not in ['control', 'sugar', 'ammonia']:
+            continue
         class_path = os.path.join(path, c) # videos/control/
         sets = os.listdir(class_path)
 
@@ -21,6 +23,9 @@ if __name__ == '__main__':
         os.mkdir(prediction_class_npy_path)
 
         for s in sets: # train # test # val
+            if s not in ['train', 'test', 'val']:
+                continue
+
             set_path = os.path.join(class_path, s)  # predictions/control/train
             videos = [video for video in os.listdir(set_path) if video.endswith('.mp4')]
 
@@ -33,7 +38,7 @@ if __name__ == '__main__':
             for video in videos:
                 get_predictions(
                     os.path.join(set_path, video),
-                    'm32_64_1.0/220626_100050.single_instance',
+                    'm64_64_1.0/221226_195308.single_instance',
                     os.path.join(prediction_set_slp_path, video[:-4] + '.pkg.slp'),
                     True
                 )
@@ -42,4 +47,3 @@ if __name__ == '__main__':
                     os.path.join(prediction_set_slp_path, video[:-4] + '.pkg.slp'),
                     os.path.join(prediction_set_npy_path, video[:-4] + '.npy')
                 )
-
