@@ -4,12 +4,14 @@ import numpy as np
 from posestimation.missingvalues import MissingValuesHandler
 
 if __name__ == '__main__':
-    prediction_npy_path = 'predictions_npy'
+    prediction_npy_path = "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/predictions_npy"
     filled_prediction_path = 'predictions_filled'
 
     os.mkdir(filled_prediction_path)
     classes = os.listdir(prediction_npy_path)
     for c in classes:   # control sugar ammonia
+        if c not in ['control', 'sugar', 'ammonia']:
+            continue
         class_path = os.path.join(prediction_npy_path, c)   # predictions_npy/control
         sets = os.listdir(class_path)
 
@@ -17,6 +19,8 @@ if __name__ == '__main__':
         os.mkdir(filled_class_path)
 
         for s in sets:
+            if s not in ['train', 'val', 'test']:
+                continue
             set_path = os.path.join(class_path, s)  # predictions_npy/control/train
             predictions = [prediction for prediction in os.listdir(set_path) if prediction.endswith('.npy')]
 
@@ -36,4 +40,4 @@ if __name__ == '__main__':
                         print(f'\tNo missing values for entry {i}, filling operation skipped')
                     else:
                         pred[i] = mvh.fill_missing_values_weighted()
-                np.save(os.path.join(filled_set_path, prediction))
+                np.save(os.path.join(filled_set_path, prediction), pred)

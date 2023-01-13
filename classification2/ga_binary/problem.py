@@ -6,11 +6,13 @@ from argparse import ArgumentParser
 
 
 class GeneticSearch:
-    LOSS = 'sparse_categorical_crossentropy'
+    LOSS = 'binary_crossentropy'
 
-    def __init__(self, train_set, val_set, batch_size=32, epochs=200, shape=(10, 29)):
+    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(10, 3480)):
         self.train_set = train_set
+        self.train_labels = train_labels
         self.val_set = val_set
+        self.val_labels = val_labels
         self.batch_size = batch_size
         self.epochs = epochs
         self.shape = shape
@@ -24,7 +26,7 @@ class GeneticSearch:
         name = ''
         data_augmentation = ks.Sequential(
             [
-                ks.layers.GaussianNoise(0.1)
+                ks.layers.GaussianNoise(0.5)
             ]
         )
 
@@ -74,13 +76,13 @@ class GeneticSearch:
             name += f'Dense{int(gene[i + 1])}{activations[int(gene[i + 2])]}'
 
             if int(gene[i + 3]) == 1:
-                dropout_rate = self._round_to_05(gene[i+5])
+                dropout_rate = self._round_to_05(gene[i+4])
                 if dropout_rate == 0.0:
                     continue
                 x = ks.layers.Dropout(dropout_rate)(x)
                 name += f'Drop{dropout_rate}'
 
-        outputs = ks.layers.Dense(3, activation='softmax')(x)
+        outputs = ks.layers.Dense(1, activation='sigmoid')(x)
         model = ks.Model(inputs, outputs)
         model.compile(
             optimizer='adam',
@@ -90,15 +92,13 @@ class GeneticSearch:
         return name, model
 
     def _build_train(self, gene):
-        mirrored_strategy = tf.distribute.MirroredStrategy()
-
         # check feasibility to avoid to start constructing
         if int(gene[0]) == 0 and int(gene[6]) == 0 and int(gene[12]) == 0\
                 and int(gene[18]) == 0 and int(gene[24]) == 0:
             return 20
 
-        with mirrored_strategy.scope():
-            name, model = self._build_model(gene)
+
+        name, model = self._build_model(gene)
 
         if name in self.already_trained:
             return self.already_trained[name]
@@ -106,7 +106,7 @@ class GeneticSearch:
         callback_list = [
             ks.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=25,
+                patience=100,
             ),
             ks.callbacks.ModelCheckpoint(
                 filepath=f'{name}.keras',
@@ -115,22 +115,23 @@ class GeneticSearch:
                 restore_best_weights=True
             ),
             ks.callbacks.ReduceLROnPlateau(
-                patience=10,
+                patience=50,
                 factor=0.5,
                 min_delta=1e-3,
             )
         ]
-        model.summary()
         print(name)
+        model.summary()
 
-        options = tf.data.Options()
-        options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
-        train_data = self.train_set.with_options(options)
-        val_data = self.val_set.with_options(options)
+        #options = tf.data.Options()
+        #options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+        #train_data = self.train_set.with_options(options)
+        #val_data = self.val_set.with_options(options)
 
         history = model.fit(
-            train_data,
-            validation_data=val_data,
+            self.train_set,
+            self.train_labels,
+            validation_data=(self.val_set, self.val_labels),
             epochs=self.epochs,
             callbacks=callback_list,
             verbose=0,
@@ -139,8 +140,9 @@ class GeneticSearch:
         del model
         ks.backend.clear_session()
         result = float(np.min(history.history['val_loss']))
+        if np.isnan(result) or str(result).lower() == 'nan':
+            return 20
         self.already_trained[name] = result
-        atexit.register(mirrored_strategy._extended._collective_ops._pool.close)
         return result
 
     def _round_to_05(self, x):

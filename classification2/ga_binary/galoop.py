@@ -2,21 +2,44 @@ from deap import base
 from deap import creator
 from deap import tools
 
+import tensorflow as tf
+
 import random
 import numpy as np
 from argparse import ArgumentParser
 import matplotlib.pyplot as plt
+import os
 
 import elitism
 from hyperparameters import LOWER_BOUNDS, UPPER_BOUNDS
 from problem import GeneticSearch
-from classification2.training import create_dataset
 
 NUM_OF_PARAMS = len(LOWER_BOUNDS)
 
 
+def create_dataset(control_path, sugar_path):
+    data, labels = [], []
+    tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
+    for i in tmp_list:
+        tmp_npy = np.load(os.path.join(control_path, i))
+        data.append(tmp_npy)
+        labels.append(0)
+
+    tmp_list = [c for c in os.listdir(sugar_path) if c.endswith('.npy')]
+    for i in tmp_list:
+        tmp_npy = np.load(os.path.join(sugar_path, i))
+        data.append(tmp_npy)
+        labels.append(1)
+
+    return normalize(np.array(data)), np.array(labels)
+
+
+def normalize(x):
+    return tf.keras.utils.normalize(x, axis=-1)
+
+
 class GAloop:
-    def __init__(self, pop_size=20, p_co=0.9, p_mut=0.5, max_gen=10, hof=3, crowding_fa=20.0):
+    def __init__(self, pop_size=40, p_co=0.9, p_mut=0.5, max_gen=15, hof=5, crowding_fa=20.0):
         self.POPULATION_SIZE = pop_size
         self.P_CROSSOVER = p_co
         self.P_MUTATION = p_mut
@@ -27,29 +50,21 @@ class GAloop:
     def run(self,
             train_control_path: str,
             train_sugar_path: str,
-            train_ammonia_path: str,
             val_control_path: str,
-            val_sugar_path: str,
-            val_ammonia_path: str,
-            length,
-            batch_size
+            val_sugar_path: str
             ):
 
-        train_set = create_dataset(
+        random.seed(42)
+        train_set, train_labels = create_dataset(
             train_control_path,
-            train_sugar_path,
-            train_ammonia_path,
-            length,
-            batch_size
+            train_sugar_path
         )
-        val_set = create_dataset(
+        val_set, val_labels = create_dataset(
             val_control_path,
-            val_sugar_path,
-            val_ammonia_path,
-            length,
-            batch_size
+            val_sugar_path
         )
-        test = GeneticSearch(train_set, val_set)
+
+        test = GeneticSearch(train_set, train_labels, val_set, val_labels)
 
         toolbox = base.Toolbox()
 
@@ -172,10 +187,6 @@ if __name__ == '__main__':
     ga.run(
         'predictions_filled/control/train/',
         'predictions_filled/sugar/train/',
-        'predictions_filled/ammonia/train/',
         'predictions_filled/control/val/',
-        'predictions_filled/sugar/val/',
-        'predictions_filled/ammonia/val/',
-        29,
-        128
+        'predictions_filled/sugar/val/'
     )

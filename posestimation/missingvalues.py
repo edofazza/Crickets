@@ -25,7 +25,8 @@ class MissingValuesHandler: # TODO: static methods
         """
         missing = []
         for i, v in enumerate(self.pred):
-            missing.append(i)
+            if np.isnan(v):
+                missing.append(i)
         return missing
 
     def fill_missing_values(self):
