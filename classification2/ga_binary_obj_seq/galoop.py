@@ -73,19 +73,20 @@ class GAloop:
             train_control_path: str,
             train_sugar_path: str,
             val_control_path: str,
-            val_sugar_path: str
+            val_sugar_path: str,
+            length
             ):
 
         random.seed(42)
         train_set, train_labels = create_dataset(
             train_control_path,
             train_sugar_path,
-            870
+            length
         )
         val_set, val_labels = create_dataset(
             val_control_path,
             val_sugar_path,
-            870
+            length
         )
 
         test = GeneticSearch(train_set, train_labels, val_set, val_labels)
@@ -212,5 +213,6 @@ if __name__ == '__main__':
         'predictions_filled/control/train/',
         'predictions_filled/sugar/train/',
         'predictions_filled/control/val/',
-        'predictions_filled/sugar/val/'
+        'predictions_filled/sugar/val/',
+        870
     )
