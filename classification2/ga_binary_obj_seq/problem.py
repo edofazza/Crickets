@@ -2,13 +2,14 @@ from tensorflow import keras as ks
 import numpy as np
 import tensorflow as tf
 import atexit
+import gc
 from argparse import ArgumentParser
 
 
 class GeneticSearch:
     LOSS = 'binary_crossentropy'
 
-    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(10, 3480)):
+    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(10, 870)):
         self.train_set = train_set
         self.train_labels = train_labels
         self.val_set = val_set
@@ -141,6 +142,7 @@ class GeneticSearch:
         if np.isnan(result) or str(result).lower() == 'nan':
             return 20
         del model
+        gc.collect()
         model = ks.models.load_model(name + '.keras')
         train_loss, train_accuracy = model.evaluate(self.train_set, self.train_labels)
         val_loss, val_accuracy = model.evaluate(self.val_set, self.val_labels)
@@ -149,8 +151,8 @@ class GeneticSearch:
         del model
         ks.backend.clear_session()
 
-        if train_accuracy < 0.6 or val_accuracy < 0.6 or train_accuracy < val_accuracy:
-            return 10
+        """if train_accuracy < 0.6 or val_accuracy < 0.6 or train_accuracy < val_accuracy:
+            return 10"""
 
         self.already_trained[name] = result
         return result

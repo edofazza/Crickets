@@ -89,7 +89,7 @@ class GAloop:
             length
         )
 
-        test = GeneticSearch(train_set, train_labels, val_set, val_labels)
+        test = GeneticSearch(train_set, train_labels, val_set, val_labels, shape=(10, length))
 
         toolbox = base.Toolbox()
 
