@@ -24,28 +24,13 @@ def create_dataset(control_path, sugar_path):
     return normalize(np.array(data)), np.array(labels)
 
 
-def evaluate(model_name):
+def evaluate(train_set, train_labels, val_set, val_labels, test_set, test_labels, model_name):
     model = tf.keras.models.load_model(model_name)
-
-    train_set, train_labels = create_dataset(
-        'predictions_filled/control/train/',
-        'predictions_filled/sugar/train/'
-    )
-    val_set, val_labels = create_dataset(
-        'predictions_filled/control/val/',
-        'predictions_filled/sugar/val/'
-    )
-
-    test_set, test_labels = create_dataset(
-        'predictions_filled/control/test/',
-        'predictions_filled/sugar/test/'
-    )
 
     train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)
     val_loss, val_accuracy = model.evaluate(val_set, val_labels, verbose=False)
     test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)
-    print(
-        f'{model_name}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
+    print(f'{model_name}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
 
 
 def evaluate2(train_set, train_labels, val_set, val_labels, test_set, test_labels, model_name):
@@ -87,3 +72,13 @@ if __name__=='__main__':
             test_set,
             test_labels,
             model)
+    """for model in ['Conv213BatcheluGlobalDense164eluDense300leaky_reluDrop0.05Dense60sigmoidDrop0.45.keras']:
+        evaluate(
+            train_set,
+            train_labels,
+            val_set,
+            val_labels,
+            test_set,
+            test_labels,
+            model
+        )"""

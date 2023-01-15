@@ -39,7 +39,7 @@ def normalize(x):
 
 
 class GAloop:
-    def __init__(self, pop_size=50, p_co=0.9, p_mut=0.5, max_gen=20, hof=5, crowding_fa=20.0):
+    def __init__(self, pop_size=100, p_co=0.9, p_mut=0.5, max_gen=50, hof=10, crowding_fa=20.0):
         self.POPULATION_SIZE = pop_size
         self.P_CROSSOVER = p_co
         self.P_MUTATION = p_mut

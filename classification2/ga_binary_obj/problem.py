@@ -111,8 +111,7 @@ class GeneticSearch:
             ks.callbacks.ModelCheckpoint(
                 filepath=f'{name}.keras',
                 monitor='val_loss',
-                save_best_only=True,
-                restore_best_weights=True
+                save_best_only=True
             ),
             ks.callbacks.ReduceLROnPlateau(
                 patience=50,
@@ -137,14 +136,20 @@ class GeneticSearch:
             verbose=0,
             batch_size=self.batch_size
         )
-        del model
-        ks.backend.clear_session()
         result = float(np.min(history.history['val_loss']))
-        loss = float(np.min(history.history['loss']))
         if np.isnan(result) or str(result).lower() == 'nan':
             return 20
+        del model
+        model = ks.models.load_model(name + '.keras')
+        train_loss, train_accuracy = model.evaluate(self.train_set, self.train_labels)
+        val_loss, val_accuracy = model.evaluate(self.val_set, self.val_labels)
+        print(f'{name}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}')
+        del model
+        ks.backend.clear_session()
 
-        result = result if result < loss else loss
+        if train_accuracy < 0.6 or val_accuracy < 0.6 or train_accuracy < val_accuracy:
+            return 10
+
         self.already_trained[name] = result
         return result
 
