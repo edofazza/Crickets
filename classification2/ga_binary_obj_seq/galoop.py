@@ -61,7 +61,7 @@ def create_dataset(control_path, sugar_path, length, aug=False):
 
 
 class GAloop:
-    def __init__(self, pop_size=20, p_co=0.9, p_mut=0.5, max_gen=10, hof=2, crowding_fa=20.0):
+    def __init__(self, pop_size=15, p_co=0.9, p_mut=0.5, max_gen=5, hof=2, crowding_fa=20.0):
         self.POPULATION_SIZE = pop_size
         self.P_CROSSOVER = p_co
         self.P_MUTATION = p_mut
@@ -77,7 +77,7 @@ class GAloop:
             length
             ):
 
-        random.seed(42)
+        random.seed(11)
         train_set, train_labels = create_dataset(
             train_control_path,
             train_sugar_path,

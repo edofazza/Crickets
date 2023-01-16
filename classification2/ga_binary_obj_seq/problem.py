@@ -151,8 +151,8 @@ class GeneticSearch:
         del model
         ks.backend.clear_session()
 
-        """if train_accuracy < 0.6 or val_accuracy < 0.6 or train_accuracy < val_accuracy:
-            return 10"""
+        if train_accuracy < 0.6 or val_accuracy < 0.6 or train_accuracy < val_accuracy:
+            return 10
 
         self.already_trained[name] = result
         return result
