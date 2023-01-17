@@ -35,6 +35,6 @@ if __name__ == '__main__':
                     for i in range(0, len(frame), 2):
                         frame[i] = frame[i] - x_head
                         frame[i + 1] = frame[i + 1] - y_head
-                pred = pred.T
+                pred = pred.T[2:, :]
                 print(pred.shape)
                 np.save(os.path.join(filled_set_path, prediction), pred)
