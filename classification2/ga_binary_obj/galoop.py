@@ -184,9 +184,9 @@ if __name__ == '__main__':
            opt['test_set_path'],
            opt['test_l_path'])"""
     ga = GAloop()
-    ga.run(
+    ga.run( # control-sugar control-ammonia sugar-ammonia
         'prediction_head_centered/control/train/',
-        'prediction_head_centered/sugar/train/',
+        'prediction_head_centered/ammonia/train/',
         'prediction_head_centered/control/val/',
-        'prediction_head_centered/sugar/val/'
+        'prediction_head_centered/ammonia/val/'
     )

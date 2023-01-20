@@ -50,17 +50,17 @@ if __name__=='__main__':
     evaluate('Conv845BatchtanhConv971tanhDrop0.15Conv729eluGlobalDense150eluDrop0.3Dense354tanhDrop0.05Dense433sigmoid.keras')
     """
     train_set, train_labels = create_dataset(
-        'predictions_filled/control/train/',
-        'predictions_filled/sugar/train/'
+        'prediction_head_centered/sugar/train/',
+        'prediction_head_centered/ammonia/train/'
     )
     val_set, val_labels = create_dataset(
-        'predictions_filled/control/val/',
-        'predictions_filled/sugar/val/'
+        'prediction_head_centered/sugar/val/',
+        'prediction_head_centered/ammonia/val/'
     )
 
     test_set, test_labels = create_dataset(
-        'predictions_filled/control/test/',
-        'predictions_filled/sugar/test/'
+        'prediction_head_centered/sugar/test/',
+        'prediction_head_centered/ammonia/test/'
     )
     models = [model for model in os.listdir('.') if model.endswith('.keras')]
     for model in models:
