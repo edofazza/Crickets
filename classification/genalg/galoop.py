@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import elitism
 from hyperparameters import LOWER_BOUNDS, UPPER_BOUNDS
 from problem import GeneticSearch
-from classification2.training import create_dataset
+from classification.training import create_dataset
 
 NUM_OF_PARAMS = len(LOWER_BOUNDS)
 

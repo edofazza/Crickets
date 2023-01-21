@@ -59,8 +59,8 @@ if __name__=='__main__':
     )
 
     test_set, test_labels = create_dataset(
-        'prediction_head_centered/sugar/test/',
-        'prediction_head_centered/ammonia/test/'
+        'prediction_head_centered/sugar/utils/',
+        'prediction_head_centered/ammonia/utils/'
     )
     models = [model for model in os.listdir('.') if model.endswith('.keras')]
     for model in models:

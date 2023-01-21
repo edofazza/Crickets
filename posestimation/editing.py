@@ -104,7 +104,7 @@ class VideoCropping:
         cv2.destroyAllWindows()
 
     @staticmethod
-    def cropping(self, input_path: str, output_path: str, y_cropping=290, starting_frame=1740, last_frame=5220):
+    def cropping(input_path: str, output_path: str, y_cropping=290, starting_frame=1740, last_frame=5220):
         cap = cv2.VideoCapture(input_path)
 
         if not cap.isOpened():

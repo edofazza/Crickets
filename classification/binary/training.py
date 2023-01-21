@@ -145,17 +145,17 @@ def training(seq_dimensions, models_dir, batch_size):
         gc.collect()
         if dim == 3480:
             test_set, test_labels = create_dataset2(
-                'predictions_filled/control/test/',
-                'predictions_filled/sugar/test/'
+                'predictions_filled/control/utils/',
+                'predictions_filled/sugar/utils/'
             )
         else:
             test_set, test_labels = create_dataset(
-                'predictions_filled/control/test/',
-                'predictions_filled/sugar/test/',
+                'predictions_filled/control/utils/',
+                'predictions_filled/sugar/utils/',
                 dim,
                 False
             )
-        test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)  # test dataset
+        test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)  # utils dataset
         print(
             f'Model {dim}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
 
@@ -191,13 +191,13 @@ def evaluate(dim):
         )
     if dim == 3480:
         test_set, test_labels = create_dataset2(
-            'predictions_filled/control/test/',
-            'predictions_filled/sugar/test/'
+            'predictions_filled/control/utils/',
+            'predictions_filled/sugar/utils/'
         )
     else:
         test_set, test_labels = create_dataset(
-            'predictions_filled/control/test/',
-            'predictions_filled/sugar/test/',
+            'predictions_filled/control/utils/',
+            'predictions_filled/sugar/utils/',
             dim,
             False
         )

@@ -22,8 +22,8 @@ if __name__ == '__main__':
         prediction_class_npy_path = os.path.join(prediction_npy_path, c)  # predictions_npy/control
         os.mkdir(prediction_class_npy_path)
 
-        for s in sets: # train # test # val
-            if s not in ['train', 'test', 'val']:
+        for s in sets: # train # utils # val
+            if s not in ['train', 'utils', 'val']:
                 continue
 
             set_path = os.path.join(class_path, s)  # predictions/control/train

@@ -37,8 +37,8 @@ def evaluate(model_name):
     )
 
     test_set, test_labels = create_dataset(
-        'predictions_filled/control/test/',
-        'predictions_filled/sugar/test/'
+        'predictions_filled/control/utils/',
+        'predictions_filled/sugar/utils/'
     )
 
     train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)
@@ -74,8 +74,8 @@ if __name__=='__main__':
     )
 
     test_set, test_labels = create_dataset(
-        'predictions_filled/control/test/',
-        'predictions_filled/sugar/test/'
+        'predictions_filled/control/utils/',
+        'predictions_filled/sugar/utils/'
     )
     models = [model for model in os.listdir('.') if model.endswith('.keras')]
     for model in models:
