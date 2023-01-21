@@ -1,0 +1,26 @@
+# pippo.yaml
+#
+# install: conda env create -f pippo.yaml
+# update:  conda env update -f pippo.yaml
+name: PIPPO
+channels:
+
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - jupyter
+  - nb_conda
+  - pip:
+    - pytest-shutil
+    - scipy
+    - numpy
+    - matplotlib
+    - pathlib
+    - pandas
+    - ruamel.yaml
+    - pyyaml
+    - opencv-python-headless
+    - tensorflow
+    - deap
+    - sleap
