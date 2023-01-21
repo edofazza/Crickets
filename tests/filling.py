@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from posestimation.missingvalues import MissingValuesHandler
+from utils.missingvalues import MissingValuesHandler
 
 if __name__ == '__main__':
     prediction_npy_path = "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/predictions_npy"

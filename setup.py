@@ -30,5 +30,6 @@ setup(
         "tensorflow",
         "deap",
         "sleap",
+        "moviepy",
     ],
 )

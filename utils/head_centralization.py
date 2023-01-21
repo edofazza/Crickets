@@ -1,6 +1,6 @@
 """
 Paper Name 1.0
-© E. Fazzari, Department of Biorobotics
+© E. Fazzari, Institute of Biorobotics
 Scuola Superiore Sant'Anna, Pisa, Italy
 
 https://github.com/edofazza/Crickets
@@ -37,7 +37,7 @@ def centralized_head_sequence_from_dir(dir_path, output_dir_path):
 def centralized_head_sequence_from_project(project_path, output_path):
     if os.path.exists(output_path):
         os.mkdir(output_path)
-        
+
     classes = os.listdir(project_path)
     for c in classes:  # control sugar ammonia
         if c not in ['control', 'sugar', 'ammonia']:

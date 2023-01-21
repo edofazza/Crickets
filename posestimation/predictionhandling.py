@@ -1,6 +1,6 @@
 """
 Paper Name 1.0
-© E. Fazzari, Department of Biorobotics
+© E. Fazzari, Institute of Biorobotics
 Scuola Superiore Sant'Anna, Pisa, Italy
 
 https://github.com/edofazza/Crickets

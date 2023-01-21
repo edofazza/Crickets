@@ -1,3 +1,12 @@
+"""
+Paper Name 1.0
+© E. Fazzari, Institute of Biorobotics
+Scuola Superiore Sant'Anna, Pisa, Italy
+
+https://github.com/edofazza/Crickets
+Licensed under GNU General Public License v3.0
+"""
+
 import os
 
 from posestimation.predictionhandling import get_predictions, obtain_all_sequence
