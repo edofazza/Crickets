@@ -77,7 +77,7 @@ if __name__=='__main__':
         'predictions_filled/control/utils/',
         'predictions_filled/sugar/utils/'
     )
-    models = [model for model in os.listdir('.') if model.endswith('.keras')]
+    models = [model for model in os.listdir('') if model.endswith('.keras')]
     for model in models:
         evaluate2(
             train_set,
