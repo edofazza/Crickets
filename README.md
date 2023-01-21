@@ -4,6 +4,9 @@ This repository contains the code used in the **** paper.
 The dataset can be downloaded from here:
 The most performing models can be downloaded in TABLE
 
+## Installation
+
+
 ## Test our models
 After downloaded the dataset and the models, you can test our code running test/pipeline.py
 
@@ -26,3 +29,11 @@ is here highlighted together with the file codes used in each step:
   - Fill missing values [posestimation/missingvalues.py]
 - CLASSIFICATION TASKS:
   - Something
+
+## Authors
+
+## References
+Paper name with link
+
+## License
+See the [LICENSE file](LICENSE) for the full statement.
