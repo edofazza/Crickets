@@ -1,84 +1,10 @@
 import os
 import tensorflow as tf
-from tensorflow import keras as ks
-import numpy as np
 import pickle
 import gc
 
-from testing_model import default_model2
-
-
-def divide_sequence(sequence, length):
-    if length == 3480:
-        return np.array(sequence)
-    _, dim = sequence.shape
-    tmp = []
-    for i in range(dim - length):
-        tmp_seq = sequence[:, i:i + length]
-        tmp.append(tmp_seq)
-    return np.array(tmp)
-
-
-def normalize(x):
-    return tf.keras.utils.normalize(x, axis=-1)
-
-
-def create_dataset(control_path, sugar_path, ammonia_path, length, train=True):
-    tmp = None
-    tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(control_path, i))
-        if tmp is None:
-            tmp = divide_sequence(tmp_npy, length)
-        else:
-            tmp = np.r_[tmp, divide_sequence(tmp_npy, length)]
-
-    if train:
-        labels = (2*tmp.shape[0]) * [0] + (2*tmp.shape[0]) * [1] + (2*tmp.shape[0]) * [2]
-    else:
-        labels = tmp.shape[0] * [0] + tmp.shape[0] * [1] + tmp.shape[0] * [2]
-
-    tmp_list = [c for c in os.listdir(sugar_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(sugar_path, i))
-        tmp = np.r_[tmp, divide_sequence(tmp_npy, length)]
-
-    tmp_list = [c for c in os.listdir(ammonia_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(ammonia_path, i))
-        tmp = np.r_[tmp, divide_sequence(tmp_npy, length)]
-
-    tmp2 = tmp[:, :, ::-1]
-    tmp = np.r_[tmp, tmp2]
-    tmp = normalize(tmp)
-    labels = np.array(labels)
-    print(tmp.shape)
-    print(labels.shape)
-    print(tmp)
-    return tmp, labels
-
-
-def create_dataset2(control_path, sugar_path, ammonia_path):
-    data, labels = [], []
-    tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(control_path, i))
-        data.append(tmp_npy)
-        labels.append(0)
-
-    tmp_list = [c for c in os.listdir(sugar_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(sugar_path, i))
-        data.append(tmp_npy)
-        labels.append(1)
-
-    tmp_list = [c for c in os.listdir(ammonia_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(ammonia_path, i))
-        data.append(tmp_npy)
-        labels.append(2)
-
-    return np.array(data), np.array(labels)
+from tests.testing_models import *
+from utils.sequence_handling import create_dataset
 
 
 def training(seq_dimensions, models_dir, batch_size):
@@ -98,18 +24,16 @@ def training(seq_dimensions, models_dir, batch_size):
             'predictions_filled/control/train/',
             'predictions_filled/sugar/train/',
             'predictions_filled/ammonia/train/',
-            dim,
-            batch_size
+            dim
         )
         val_set, val_labels = create_dataset(
             'predictions_filled/control/val/',
             'predictions_filled/sugar/val/',
             'predictions_filled/ammonia/val/',
-            dim,
-            batch_size
+            dim
         )
 
-        model = default_model2(dim)
+        model = binary_model(dim)
         model.compile(optimizer='adam',
                       loss='sparse_categorical_crossentropy',
                       metrics=['accuracy'])
@@ -135,7 +59,7 @@ def training(seq_dimensions, models_dir, batch_size):
         history = model.fit(
             train_set,
             train_labels,
-            epochs=50,
+            epochs=500,
             callbacks=callbacks_list,
             validation_data=(val_set, val_labels),
             batch_size=batch_size
@@ -144,6 +68,8 @@ def training(seq_dimensions, models_dir, batch_size):
         with open(f'{models_dir}/length{dim}/history', 'wb') as file:
             pickle.dump(history.history, file)
 
+        del model
+        model = ks.models.load_model(f'{models_dir}/length{dim}/model.keras')
         train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)
         val_loss, val_accuracy = model.evaluate(val_set, val_labels, verbose=False)
 
@@ -154,8 +80,7 @@ def training(seq_dimensions, models_dir, batch_size):
             'predictions_filled/control/utils/',
             'predictions_filled/sugar/utils/',
             'predictions_filled/ammonia/utils/',
-            dim,
-            batch_size
+            dim
         )
         test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)  # utils dataset
         print(
@@ -165,6 +90,34 @@ def training(seq_dimensions, models_dir, batch_size):
         del test_set
         gc.collect()
         ks.backend.clear_session()
+
+
+def evaluate(dim):
+    model = tf.keras.models.load_model(f'models/old/length{dim}/model.keras')
+    train_set, train_labels = create_dataset(
+        'predictions_filled/control/train/',
+        'predictions_filled/sugar/train/',
+        'predictions_filled/ammonia/train/',
+        dim
+    )
+    val_set, val_labels = create_dataset(
+        'predictions_filled/control/val/',
+        'predictions_filled/sugar/val/',
+        'predictions_filled/ammonia/val/',
+        dim
+    )
+    test_set, test_labels = create_dataset(
+        'predictions_filled/control/utils/',
+        'predictions_filled/sugar/utils/',
+        'predictions_filled/ammonia/utils/',
+        dim
+    )
+    train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)
+    val_loss, val_accuracy = model.evaluate(val_set, val_labels, verbose=False)
+    test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)
+    print(
+        f'Model {dim}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
+
 
 
 if __name__ == '__main__':

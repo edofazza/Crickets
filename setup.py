@@ -31,5 +31,6 @@ setup(
         "deap",
         "sleap",
         "moviepy",
+        "seaborn",
     ],
 )

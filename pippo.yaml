@@ -4,7 +4,6 @@
 # update:  conda env update -f pippo.yaml
 name: PIPPO
 channels:
-
   - defaults
 dependencies:
   - python=3.8
@@ -25,3 +24,4 @@ dependencies:
     - deap
     - sleap
     - moviepy
+    - seaborn

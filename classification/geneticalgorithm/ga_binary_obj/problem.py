@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 class GeneticSearch:
     LOSS = 'binary_crossentropy'
 
-    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(8, 3480)):
+    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(8, 3480), classes=2):
         self.train_set = train_set
         self.train_labels = train_labels
         self.val_set = val_set
@@ -16,6 +16,7 @@ class GeneticSearch:
         self.batch_size = batch_size
         self.epochs = epochs
         self.shape = shape
+        self.classes = classes
         self.already_trained = dict()
 
     def _build_model(self, gene):
@@ -82,7 +83,10 @@ class GeneticSearch:
                 x = ks.layers.Dropout(dropout_rate)(x)
                 name += f'Drop{dropout_rate}'
 
-        outputs = ks.layers.Dense(1, activation='sigmoid')(x)
+        if self.classes == 2:
+            outputs = ks.layers.Dense(1, activation='sigmoid')(x)
+        else:
+            outputs = ks.layers.Dense(3, activation='softmax')(x)
         model = ks.Model(inputs, outputs)
         model.compile(
             optimizer='adam',

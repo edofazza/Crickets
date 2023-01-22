@@ -17,7 +17,7 @@ from problem import GeneticSearch
 NUM_OF_PARAMS = len(LOWER_BOUNDS)
 
 
-def create_dataset(control_path, sugar_path):
+"""def create_dataset(control_path, sugar_path):
     data, labels = [], []
     tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
     for i in tmp_list:
@@ -31,7 +31,59 @@ def create_dataset(control_path, sugar_path):
         data.append(tmp_npy)
         labels.append(1)
 
-    return normalize(np.array(data)), np.array(labels)
+    return normalize(np.array(data)), np.array(labels)"""
+def divide_sequence(sequence, length):
+    if length == 3480:
+        return np.array(sequence)
+    _, dim = sequence.shape
+    tmp = []
+    for i in range(dim - length):
+        tmp_seq = sequence[:, i:i + length]
+        tmp.append(tmp_seq)
+    return np.array(tmp)
+
+
+def create_dataset(control_path, sugar_path, ammonia_path=None, length=3480):
+    if length < 3480:
+        data = None
+    else:
+        data = []
+    labels = []
+    tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
+    for i in tmp_list:
+        tmp_npy = np.load(os.path.join(control_path, i))
+        labels.append(0)
+        if type(data) is list:
+            data.append(tmp_npy)
+        else:
+            if data is None:
+                data = divide_sequence(tmp_npy, length)
+            else:
+                data = np.r_[data, divide_sequence(tmp_npy, length)]
+
+    tmp_list = [c for c in os.listdir(sugar_path) if c.endswith('.npy')]
+    for i in tmp_list:
+        tmp_npy = np.load(os.path.join(sugar_path, i))
+        labels.append(1)
+        if type(data) is list:
+            data.append(tmp_npy)
+        else:
+            data = np.r_[data, divide_sequence(tmp_npy, length)]
+
+    if ammonia_path is not None:
+        tmp_list = [c for c in os.listdir(ammonia_path) if c.endswith('.npy')]
+        for i in tmp_list:
+            tmp_npy = np.load(os.path.join(ammonia_path, i))
+            labels.append(2)
+            if type(data) is list:
+                data.append(tmp_npy)
+            else:
+                data = np.r_[data, divide_sequence(tmp_npy, length)]
+
+    if type(data) is list:
+        return normalize(np.array(data)), np.array(labels)
+    else:
+        return normalize(data), np.array(labels)
 
 
 def normalize(x):
@@ -39,7 +91,7 @@ def normalize(x):
 
 
 class GAloop:
-    def __init__(self, pop_size=100, p_co=0.9, p_mut=0.5, max_gen=50, hof=10, crowding_fa=20.0):
+    def __init__(self, pop_size=250, p_co=0.9, p_mut=0.5, max_gen=50, hof=10, crowding_fa=20.0):
         self.POPULATION_SIZE = pop_size
         self.P_CROSSOVER = p_co
         self.P_MUTATION = p_mut
@@ -64,7 +116,7 @@ class GAloop:
             val_sugar_path
         )
 
-        test = GeneticSearch(train_set, train_labels, val_set, val_labels)
+        test = GeneticSearch(train_set, train_labels, val_set, val_labels, classes=3)
 
         toolbox = base.Toolbox()
 
