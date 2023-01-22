@@ -7,7 +7,19 @@ from tests.testing_models import *
 from utils.sequence_handling import create_dataset
 
 
-def training(seq_dimensions, models_dir, batch_size):
+def training(seq_dimensions,
+             models_dir,
+             batch_size,
+             stim1_train='predictions_filled/control/train/',
+             stim1_val='predictions_filled/control/val/',
+             stim1_test='predictions_filled/control/test/',
+             stim2_train='predictions_filled/sugar/train/',
+             stim2_val='predictions_filled/sugar/val/',
+             stim2_test='predictions_filled/sugar/test/',
+             stim3_train=None,
+             stim3_val=None,
+             stim3_test=None
+             ):
     # create directory where the models will be saved
     if not os.path.exists(models_dir):
         os.mkdir(models_dir)
@@ -21,16 +33,16 @@ def training(seq_dimensions, models_dir, batch_size):
             continue
 
         train_set, train_labels = create_dataset(
-            'predictions_filled/control/train/',
-            'predictions_filled/sugar/train/',
-            'predictions_filled/ammonia/train/',
-            dim
+            stim1_train,
+            stim2_train,
+            stim3_train,
+            seq_dimensions
         )
         val_set, val_labels = create_dataset(
-            'predictions_filled/control/val/',
-            'predictions_filled/sugar/val/',
-            'predictions_filled/ammonia/val/',
-            dim
+            stim1_val,
+            stim2_val,
+            stim3_val,
+            seq_dimensions
         )
 
         model = binary_model(dim)
@@ -77,10 +89,10 @@ def training(seq_dimensions, models_dir, batch_size):
         del val_set
         gc.collect()
         test_set, test_labels = create_dataset(
-            'predictions_filled/control/utils/',
-            'predictions_filled/sugar/utils/',
-            'predictions_filled/ammonia/utils/',
-            dim
+            stim1_test,
+            stim2_test,
+            stim3_test,
+            seq_dimensions
         )
         test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)  # utils dataset
         print(
@@ -92,31 +104,42 @@ def training(seq_dimensions, models_dir, batch_size):
         ks.backend.clear_session()
 
 
-def evaluate(dim):
+def evaluate(dim,
+             stim1_train='predictions_filled/control/train/',
+             stim1_val='predictions_filled/control/val/',
+             stim1_test='predictions_filled/control/test/',
+             stim2_train='predictions_filled/sugar/train/',
+             stim2_val='predictions_filled/sugar/val/',
+             stim2_test='predictions_filled/sugar/test/',
+             stim3_train=None,
+             stim3_val=None,
+             stim3_test=None
+             ):
     model = tf.keras.models.load_model(f'models/old/length{dim}/model.keras')
     train_set, train_labels = create_dataset(
-        'predictions_filled/control/train/',
-        'predictions_filled/sugar/train/',
-        'predictions_filled/ammonia/train/',
+        stim1_train,
+        stim2_train,
+        stim3_train,
         dim
     )
     val_set, val_labels = create_dataset(
-        'predictions_filled/control/val/',
-        'predictions_filled/sugar/val/',
-        'predictions_filled/ammonia/val/',
+        stim1_val,
+        stim2_val,
+        stim3_val,
         dim
     )
     test_set, test_labels = create_dataset(
-        'predictions_filled/control/utils/',
-        'predictions_filled/sugar/utils/',
-        'predictions_filled/ammonia/utils/',
+        stim1_test,
+        stim2_test,
+        stim3_test,
         dim
     )
     train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)
     val_loss, val_accuracy = model.evaluate(val_set, val_labels, verbose=False)
     test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)
     print(
-        f'Model {dim}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
+        f'Model {dim}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\t'
+        f'Val accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
 
 
 
