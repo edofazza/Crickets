@@ -9,7 +9,7 @@ class GeneticSearch:
     BINARY_LOSS = 'binary_crossentropy'
     LOSS = 'sparse_categorical_crossentropy'
 
-    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(8, 3480), classes=2):
+    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(8, 3480), classes=2, multi_gpus=False):
         self.train_set = train_set
         self.train_labels = train_labels
         self.val_set = val_set
@@ -18,6 +18,7 @@ class GeneticSearch:
         self.epochs = epochs
         self.shape = shape
         self.classes = classes
+        self.multi_gpus = multi_gpus
         self.already_trained = dict()
 
     def _build_model(self, gene):
@@ -102,8 +103,12 @@ class GeneticSearch:
                 and int(gene[18]) == 0 and int(gene[24]) == 0:
             return 20
 
-
-        name, model = self._build_model(gene)
+        if self.multi_gpus: # allow multiple gpus
+            mirrored_strategy = tf.distribute.MirroredStrategy()
+            with mirrored_strategy.scope():
+                name, model = self._build_model(gene)
+        else:
+            name, model = self._build_model(gene)
 
         if name in self.already_trained:
             return self.already_trained[name]
@@ -127,20 +132,31 @@ class GeneticSearch:
         print(name)
         model.summary()
 
-        #options = tf.data.Options()
-        #options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
-        #train_data = self.train_set.with_options(options)
-        #val_data = self.val_set.with_options(options)
-
-        history = model.fit(
-            self.train_set,
-            self.train_labels,
-            validation_data=(self.val_set, self.val_labels),
-            epochs=self.epochs,
-            callbacks=callback_list,
-            verbose=0,
-            batch_size=self.batch_size
-        )
+        if self.multi_gpus:
+            options = tf.data.Options()
+            options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+            train_data = tf.data.Dataset.from_tensor_slices((self.train_set, self.train_labels))
+            val_data = tf.data.Dataset.from_tensor_slices((self.val_set, self.val_labels))
+            train_data = train_data.with_options(options)
+            val_data = val_data.with_options(options)
+            history = model.fit(
+                train_data,
+                validation_data=val_data,
+                epochs=self.epochs,
+                callbacks=callback_list,
+                verbose=0,
+                batch_size=self.batch_size
+            )
+        else:
+            history = model.fit(
+                self.train_set,
+                self.train_labels,
+                validation_data=(self.val_set, self.val_labels),
+                epochs=self.epochs,
+                callbacks=callback_list,
+                verbose=0,
+                batch_size=self.batch_size
+            )
         result = float(np.min(history.history['val_loss']))
         if np.isnan(result) or str(result).lower() == 'nan':
             return 20
@@ -156,6 +172,9 @@ class GeneticSearch:
             return 10*(1-train_accuracy)
 
         self.already_trained[name] = result
+
+        if self.multi_gpus:
+            atexit.register(mirrored_strategy._extended._collective_ops._pool.close)
         return result
 
     def _round_to_05(self, x):
