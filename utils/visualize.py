@@ -1,12 +1,3 @@
-"""
-Paper Name 1.0
-© E. Fazzari, Institute of Biorobotics
-Scuola Superiore Sant'Anna, Pisa, Italy
-
-https://github.com/edofazza/Crickets
-Licensed under GNU General Public License v3.0
-"""
-
 import os
 import seaborn as sn
 from matplotlib import pyplot as plt
@@ -87,7 +78,7 @@ def conf_matrix(model_path, stim1_dir_path, stim2_dir_path, stim3_dir_path=None)
         pass # TODO: argmax
 
 
-if __name__ =='__main__':
+if __name__ =='__main__': # TODO: remove and make it a demo
     dir_path = "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/prediction_head_centered/ammonia/test"
     files = os.listdir(dir_path)
     files = [file for file in files if file.endswith('.npy')]

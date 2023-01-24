@@ -17,22 +17,7 @@ from problem import GeneticSearch
 NUM_OF_PARAMS = len(LOWER_BOUNDS)
 
 
-"""def create_dataset(control_path, sugar_path):
-    data, labels = [], []
-    tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(control_path, i))
-        data.append(tmp_npy)
-        labels.append(0)
-
-    tmp_list = [c for c in os.listdir(sugar_path) if c.endswith('.npy')]
-    for i in tmp_list:
-        tmp_npy = np.load(os.path.join(sugar_path, i))
-        data.append(tmp_npy)
-        labels.append(1)
-
-    return normalize(np.array(data)), np.array(labels)"""
-def divide_sequence(sequence, length):
+def divide_sequence(sequence, length): # TODO: remove and use the one in utils
     if length == 3480:
         return np.array(sequence)
     _, dim = sequence.shape
@@ -43,7 +28,7 @@ def divide_sequence(sequence, length):
     return np.array(tmp)
 
 
-def create_dataset(control_path, sugar_path, ammonia_path=None, length=3480):
+def create_dataset(control_path, sugar_path, ammonia_path=None, length=3480): # TODO: remove and use the one in utils
     if length < 3480:
         data = None
     else:
@@ -86,7 +71,7 @@ def create_dataset(control_path, sugar_path, ammonia_path=None, length=3480):
         return normalize(data), np.array(labels)
 
 
-def normalize(x):
+def normalize(x): # TODO: remove and use the one in utils
     return tf.keras.utils.normalize(x, axis=-1)
 
 

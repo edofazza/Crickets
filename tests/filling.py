@@ -3,7 +3,7 @@ import numpy as np
 
 from utils.missingvalues import MissingValuesHandler
 
-if __name__ == '__main__':
+if __name__ == '__main__': # TODO: remove or make it a demo
     prediction_npy_path = "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/predictions_npy"
     filled_prediction_path = 'predictions_filled'
 

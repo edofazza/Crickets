@@ -1,12 +1,3 @@
-"""
-Paper Name 1.0
-© E. Fazzari, Institute of Biorobotics
-Scuola Superiore Sant'Anna, Pisa, Italy
-
-https://github.com/edofazza/Crickets
-Licensed under GNU General Public License v3.0
-"""
-
 import os
 import json
 
@@ -119,6 +110,13 @@ class SingleInstanceHandler:
                + str(self.get_filters_rate()) + '_' + str(self.get_input_scaling())
 
     def change_job_yaml(self, model_path, old_model_path):
+        """
+        Change the jobs.yaml file created in the sleap training package in order to match the new
+        configuration of the single_instance.json file in the same directory
+        :param model_path: path to the new model that will be used for training
+        :param old_model_path: path to the previous model indicated in jobs.yaml and that you wish to change
+        :return:
+        """
         with open('tmp.yaml', 'w') as out:
             with open('jobs.yaml', 'r') as f:
                 for i in f:

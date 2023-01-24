@@ -1,12 +1,3 @@
-"""
-Paper Name 1.0
-© E. Fazzari, Institute of Biorobotics
-Scuola Superiore Sant'Anna, Pisa, Italy
-
-https://github.com/edofazza/Crickets
-Licensed under GNU General Public License v3.0
-"""
-
 import numpy as np
 import sleap
 from argparse import ArgumentParser
@@ -49,7 +40,7 @@ def obtain_head_sequence(predictions_path, output_path: str):
     np.save(output_path, head_list)
 
 
-def obtain_all_sequence(predictions_path, output_path: str):
+def obtain_np_seq_from_slp_pred(predictions_path, output_path: str):
     """
     Save in a npy file the predictions from a slp file
     :param predictions_path: path to where the slp file is located
@@ -99,7 +90,7 @@ if __name__ == '__main__':
         if opt['only_head']:
             obtain_head_sequence(labels, opt['seq_output_path'])
         else:
-            obtain_all_sequence(labels, opt['seq_output_path'])
+            obtain_np_seq_from_slp_pred(labels, opt['seq_output_path'])
     elif opt['only_head']:
         labels = sleap.load_file(opt['labels_path'])
         obtain_head_sequence(labels, opt['seq_output_path'])

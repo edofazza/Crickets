@@ -1,24 +1,13 @@
-"""
-Paper Name 1.0
-© E. Fazzari, Institute of Biorobotics
-Scuola Superiore Sant'Anna, Pisa, Italy
-
-https://github.com/edofazza/Crickets
-Licensed under GNU General Public License v3.0
-"""
-
-# PIPELINE
-#         # FINAL CONSIDERATION
 import numpy as np
 from tensorflow import keras as ks
 
 from posestimation.editing import VideoCropping
-from posestimation.predictionhandling import get_predictions, obtain_all_sequence
+from posestimation.predictionhandling import get_predictions, obtain_np_seq_from_slp_pred
 from posestimation.moviemanager import MovieManager
 from utils.missingvalues import MissingValuesHandler
 from utils.head_centralization import centralized_head_in_sequence
 
-video_path = 'YOUR-VIDEO.mp4'
+video_path = 'YOUR-VIDEO.mp4' # TODO: test
 pe_model_path = 'm64_64_1.0/221226_195308.single_instance'
 class_model = 'model.keras'
 num_classes = 2
@@ -42,7 +31,7 @@ get_predictions(
     False
 )
 
-obtain_all_sequence(
+obtain_np_seq_from_slp_pred(
     'tmp.pkg.slp',
     'tmp.npy'
 )

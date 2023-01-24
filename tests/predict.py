@@ -1,17 +1,8 @@
-"""
-Paper Name 1.0
-© E. Fazzari, Institute of Biorobotics
-Scuola Superiore Sant'Anna, Pisa, Italy
-
-https://github.com/edofazza/Crickets
-Licensed under GNU General Public License v3.0
-"""
-
 import os
 
-from posestimation.predictionhandling import get_predictions, obtain_all_sequence
+from posestimation.predictionhandling import get_predictions, obtain_np_seq_from_slp_pred
 
-if __name__ == '__main__':
+if __name__ == '__main__': # TODO: remove or make it a demo
     path = 'videos'
     prediction_slp_path = 'predictions_slp'
     prediction_npy_path = 'predictions_npy'
@@ -52,7 +43,7 @@ if __name__ == '__main__':
                     True
                 )
 
-                obtain_all_sequence(
+                obtain_np_seq_from_slp_pred(
                     os.path.join(prediction_set_slp_path, video[:-4] + '.pkg.slp'),
                     os.path.join(prediction_set_npy_path, video[:-4] + '.npy')
                 )

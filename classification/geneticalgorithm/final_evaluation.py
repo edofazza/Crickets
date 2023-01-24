@@ -3,11 +3,11 @@ import os
 import numpy as np
 
 
-def normalize(x):
+def normalize(x): # TODO: remove and use the one in utils
     return tf.keras.utils.normalize(x, axis=-1)
 
 
-def create_dataset(control_path, sugar_path):
+def create_dataset(control_path, sugar_path): # TODO: remove and use the one in utils
     data, labels = [], []
     tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
     for i in tmp_list:
@@ -24,7 +24,7 @@ def create_dataset(control_path, sugar_path):
     return normalize(np.array(data)), np.array(labels)
 
 
-def evaluate(train_set, train_labels, val_set, val_labels, test_set, test_labels, model_name):
+def evaluate(train_set, train_labels, val_set, val_labels, test_set, test_labels, model_name): # TODO: move to test
     model = tf.keras.models.load_model(model_name)
 
     train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)
@@ -33,7 +33,7 @@ def evaluate(train_set, train_labels, val_set, val_labels, test_set, test_labels
     print(f'{model_name}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
 
 
-def evaluate2(train_set, train_labels, val_set, val_labels, test_set, test_labels, model_name):
+def evaluate2(train_set, train_labels, val_set, val_labels, test_set, test_labels, model_name): # TODO: move to test
     model = tf.keras.models.load_model(model_name)
 
     train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)

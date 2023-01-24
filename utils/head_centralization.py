@@ -1,12 +1,3 @@
-"""
-Paper Name 1.0
-© E. Fazzari, Institute of Biorobotics
-Scuola Superiore Sant'Anna, Pisa, Italy
-
-https://github.com/edofazza/Crickets
-Licensed under GNU General Public License v3.0
-"""
-
 import os
 import numpy as np
 
@@ -63,7 +54,7 @@ def centralized_head_sequence_from_project(project_path, output_path):
                                              os.path.join(filled_set_path, prediction))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # TODO: remove
     prediction_npy_path = "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/predictions_filled"
     centered_prediction_path = 'prediction_head_centered'
 
