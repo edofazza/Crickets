@@ -6,7 +6,8 @@ from argparse import ArgumentParser
 
 
 class GeneticSearch:
-    LOSS = 'binary_crossentropy'
+    BINARY_LOSS = 'binary_crossentropy'
+    LOSS = 'sparse_categorical_crossentropy'
 
     def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(8, 3480), classes=2):
         self.train_set = train_set
@@ -90,7 +91,7 @@ class GeneticSearch:
         model = ks.Model(inputs, outputs)
         model.compile(
             optimizer='adam',
-            loss=self.LOSS,
+            loss=self.LOSS if self.classes != 2 else self.BINARY_LOSS,
             metrics=['accuracy']
         )
         return name, model

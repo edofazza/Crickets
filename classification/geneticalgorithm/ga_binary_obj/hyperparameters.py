@@ -1,9 +1,9 @@
 """
 Activation functions:
-    - relu
+    - sigmoid
     - swish
     - tanh
-    - sigmoid
+    - relu
     - gelu
     - elu
     - leaky_relu
