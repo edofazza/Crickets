@@ -91,13 +91,14 @@ def normalize(x):
 
 
 class GAloop:
-    def __init__(self, pop_size=250, p_co=0.9, p_mut=0.5, max_gen=50, hof=10, crowding_fa=20.0):
+    def __init__(self, pop_size=250, p_co=0.9, p_mut=0.5, max_gen=50, hof=10, crowding_fa=20.0, multi_gpus=False):
         self.POPULATION_SIZE = pop_size
         self.P_CROSSOVER = p_co
         self.P_MUTATION = p_mut
         self.MAX_GENERATIONS = max_gen
         self.HALL_OF_FAME_SIZE = hof
         self.CROWDING_FACTOR = crowding_fa
+        self.multi_gpus = multi_gpus
 
     def run(self,
             train_control_path: str,
@@ -116,7 +117,7 @@ class GAloop:
             val_sugar_path
         )
 
-        test = GeneticSearch(train_set, train_labels, val_set, val_labels, classes=3)
+        test = GeneticSearch(train_set, train_labels, val_set, val_labels, classes=3, multi_gpus=self.multi_gpus)
 
         toolbox = base.Toolbox()
 
