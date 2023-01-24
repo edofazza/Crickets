@@ -104,20 +104,31 @@ class GAloop:
             train_control_path: str,
             train_sugar_path: str,
             val_control_path: str,
-            val_sugar_path: str
+            val_sugar_path: str,
+            train_ammonia_path=None,
+            val_ammonia_path=None,
+            length=3480,
+            shape=(8, 3480),
+            batch_size=16,
+            epochs=1000
             ):
 
         random.seed(42)
         train_set, train_labels = create_dataset(
             train_control_path,
-            train_sugar_path
+            train_sugar_path,
+            train_ammonia_path,
+            length
         )
         val_set, val_labels = create_dataset(
             val_control_path,
-            val_sugar_path
+            val_sugar_path,
+            val_ammonia_path,
+            length
         )
 
-        test = GeneticSearch(train_set, train_labels, val_set, val_labels, classes=3, multi_gpus=self.multi_gpus)
+        test = GeneticSearch(train_set, train_labels, val_set, val_labels, classes=3,
+                             multi_gpus=self.multi_gpus, shape=shape, batch_size=batch_size, epochs=epochs)
 
         toolbox = base.Toolbox()
 
@@ -238,8 +249,10 @@ if __name__ == '__main__':
            opt['test_l_path'])"""
     ga = GAloop()
     ga.run( # control-sugar control-ammonia sugar-ammonia
-        'prediction_head_centered/control/train/',
-        'prediction_head_centered/ammonia/train/',
-        'prediction_head_centered/control/val/',
-        'prediction_head_centered/ammonia/val/'
+        train_control_path='prediction_head_centered/control/train/',
+        train_sugar_path='prediction_head_centered/sugar/train/',
+        val_control_path='prediction_head_centered/control/val/',
+        val_sugar_path='prediction_head_centered/sugar/val/',
+        train_ammonia_path='prediction_head_centered/ammonia/train/',
+        val_ammonia_path='prediction_head_centered/ammonia/val/'
     )
