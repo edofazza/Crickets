@@ -6,7 +6,6 @@ import tensorflow as tf
 
 import random
 import numpy as np
-from argparse import ArgumentParser
 import matplotlib.pyplot as plt
 import os
 
@@ -208,30 +207,7 @@ class GAloop:
         plt.savefig('ga_search.png')
 
 
-def parse():
-    parser = ArgumentParser()
-    parser.add_argument('--pop_size', type=int, default=5)
-    parser.add_argument('--prob_cx', type=float, default=0.9)
-    parser.add_argument('--prob_mut', type=float, default=0.5)
-    parser.add_argument('--max_gen', type=int, default=2)
-    parser.add_argument('--hof', type=int, default=1)
-    parser.add_argument('--crowding', type=float, default=20.0)
-
-    parser.add_argument('--train_set_path', type=str, default='train_set.npy')
-    parser.add_argument('--train_l_path', type=str, default='train_l.npy')
-    parser.add_argument('--test_set_path', type=str, default='test_set.npy')
-    parser.add_argument('--test_l_path', type=str, default='test_l.npy')
-    return vars(parser.parse_args())
-
-
 if __name__ == '__main__':
-    """opt = parse()
-    ga = GAloop(opt['pop_size'], opt['prob_cx'], opt['prob_mut'],
-                opt['max_gen'], opt['hof'], opt['crwoding'])
-    ga.run(opt['train_set_path'],
-           opt['train_l_path'],
-           opt['test_set_path'],
-           opt['test_l_path'])"""
     ga = GAloop()
     ga.run( # control-sugar control-ammonia sugar-ammonia
         train_control_path='prediction_head_centered/control/train/',
