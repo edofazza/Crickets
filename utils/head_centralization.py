@@ -3,6 +3,14 @@ import numpy as np
 
 
 def centralized_head_in_sequence(sequence_path, output_path):
+    """
+    From a numpy sequence with filled values this function centralizes the position
+    of the head and moves all the other joints accordingly. Then removes the head sequences (positions 0 and 1)
+    since now they are all 0, thus meaningless.
+    :param sequence_path: path to where the numpy sequence is located
+    :param output_path: output where the new sequence will be saved
+    :return:
+    """
     pred = np.load(sequence_path).T
 
     for frame in pred:
@@ -16,9 +24,15 @@ def centralized_head_in_sequence(sequence_path, output_path):
 
 
 def centralized_head_sequence_from_dir(dir_path, output_dir_path):
+    """
+
+    :param dir_path: path to directory containing sequences
+    :param output_dir_path: path to new directory where the sequences will be stored
+    :return:
+    """
     predictions = [prediction for prediction in os.listdir(dir_path) if prediction.endswith('.npy')]
 
-    if os.path.exists(output_dir_path):
+    if not os.path.exists(output_dir_path):
         os.mkdir(output_dir_path)
 
     for prediction in predictions:
@@ -26,7 +40,26 @@ def centralized_head_sequence_from_dir(dir_path, output_dir_path):
 
 
 def centralized_head_sequence_from_project(project_path, output_path):
-    if os.path.exists(output_path):
+    """
+    Perform the transformation starting from a directory (project_path) organized as
+            - control
+                - train
+                - val
+                - test
+            - sugar
+                - train
+                - val
+                - test
+            - ammonia
+                - train
+                - val
+                - test
+    And a new directory organized (output_path) in the same way where the new sequences will be stored.
+    :param project_path: path to the original directory
+    :param output_path: path to the new directory containing the results
+    :return:
+    """
+    if not os.path.exists(output_path):
         os.mkdir(output_path)
 
     classes = os.listdir(project_path)
@@ -40,22 +73,6 @@ def centralized_head_sequence_from_project(project_path, output_path):
         os.mkdir(filled_class_path)
 
         for s in sets:
-            if s not in ['train', 'utils', 'val']:
+            if s not in ['train', 'test', 'val']:
                 continue
             centralized_head_sequence_from_dir(os.path.join(class_path, s), os.path.join(filled_class_path, s))
-            set_path = os.path.join(class_path, s)  # predictions_npy/control/train
-            predictions = [prediction for prediction in os.listdir(set_path) if prediction.endswith('.npy')]
-
-            filled_set_path = os.path.join(filled_class_path, s)
-            os.mkdir(filled_set_path)
-
-            for prediction in predictions:
-                centralized_head_in_sequence(os.path.join(set_path, prediction),
-                                             os.path.join(filled_set_path, prediction))
-
-
-if __name__ == '__main__': # TODO: remove
-    prediction_npy_path = "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/predictions_filled"
-    centered_prediction_path = 'prediction_head_centered'
-
-    centralized_head_sequence_from_project(prediction_npy_path, centered_prediction_path)

@@ -133,6 +133,14 @@ def training(
         input_scaling,
         old_model_path
 ):
+    """
+    Run the sleap-train starting from an original configuration
+    :param max_stride:
+    :param filter_:
+    :param input_scaling:
+    :param old_model_path: path to the model in the original/previous configuration (usually is "models")
+    :return:
+    """
     sih = SingleInstanceHandler(
         'single_instance.json',
         max_stride=max_stride,
@@ -149,11 +157,19 @@ def training(
 
 
 def gridsearch(max_strides: list, filters: list, input_scaling_ranges: list, old_model_path='models'):
+    """
+    Perform a grid search using all possible combinations of the input parameters
+    :param max_strides: list of max strides that you wish to test
+    :param filters: list of filters that you wsih to test
+    :param input_scaling_ranges: list of input scaling that you wish to test
+    :param old_model_path: path to the model in the original/previous configuration (usually is "models")
+    :return:
+    """
     for max_stride in max_strides:
         for filter_ in filters:
             for input_scaling in input_scaling_ranges:
                 old_model_path = training(max_stride, filter_, input_scaling, old_model_path)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     gridsearch([32, 64], [32, 64], [0.5, 0.6, 0.7, 0.8, 0.9, 1.0])

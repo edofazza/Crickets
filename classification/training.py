@@ -3,7 +3,7 @@ import tensorflow as tf
 import pickle
 import gc
 
-from tests.testing_models import *
+from classification.testing_models import *
 from utils.sequence_handling import create_dataset
 
 
