@@ -48,35 +48,61 @@ def create_dataset(first_stimulus_path, second_stimulus_path, third_stimulus_pat
     tmp_list = [c for c in os.listdir(first_stimulus_path) if c.endswith('.npy')]
     for i in tmp_list:
         tmp_npy = np.load(os.path.join(first_stimulus_path, i))
-        labels.append(0)
         if type(data) is list:
             data.append(tmp_npy)
+            labels.append(0)
         else:
             if data is None:
                 data = divide_sequence(tmp_npy, length)
+                labels = data.shape[0]*[0]
             else:
-                data = np.r_[data, divide_sequence(tmp_npy, length)]
+                tmp_data = divide_sequence(tmp_npy, length)
+                data = np.r_[data, tmp_data]
+                labels.extend(tmp_data.shape[0] * [0])
 
     tmp_list = [c for c in os.listdir(second_stimulus_path) if c.endswith('.npy')]
     for i in tmp_list:
         tmp_npy = np.load(os.path.join(second_stimulus_path, i))
-        labels.append(1)
         if type(data) is list:
             data.append(tmp_npy)
+            labels.append(1)
         else:
-            data = np.r_[data, divide_sequence(tmp_npy, length)]
+            tmp_data = divide_sequence(tmp_npy, length)
+            data = np.r_[data, tmp_data]
+            labels.extend(tmp_data.shape[0]*[1])
 
     if third_stimulus_path is not None:
         tmp_list = [c for c in os.listdir(third_stimulus_path) if c.endswith('.npy')]
         for i in tmp_list:
             tmp_npy = np.load(os.path.join(third_stimulus_path, i))
-            labels.append(2)
             if type(data) is list:
                 data.append(tmp_npy)
+                labels.append(2)
             else:
-                data = np.r_[data, divide_sequence(tmp_npy, length)]
+                tmp_data = divide_sequence(tmp_npy, length)
+                data = np.r_[data, tmp_data]
+                labels.extend(tmp_data.shape[0] * [2])
 
     if type(data) is list:
         return normalize(np.array(data)), np.array(labels)
     else:
         return normalize(data), np.array(labels)
+
+
+if __name__ == '__main__':
+    dir_path = "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/prediction_head_centered"
+    train_set, train_labels = create_dataset(
+        os.path.join(dir_path, 'control/train'),
+        os.path.join(dir_path, 'sugar/train'),
+        os.path.join(dir_path, 'ammonia/train'),
+        3190
+    )
+    print(train_set.shape, '\n', train_labels.shape)
+    val_set, val_labels = create_dataset(
+        os.path.join(dir_path, 'control/val'),
+        os.path.join(dir_path, 'sugar/val'),
+        os.path.join(dir_path, 'ammonia/val'),
+        3190
+    )
+    print(val_set.shape, '\n', val_labels.shape)
+    print(val_labels)
