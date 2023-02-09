@@ -151,10 +151,10 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
     validation_accuracies_average = np.average(val_accuracies)
     print(f'\t-Average validation accuracies:{validation_accuracies_average}')
     # save all values
-    np.save(f'{iter_i}_results/train_losses.npy', train_losses)
-    np.save(f'{iter_i}_results/train_accuracies.npy', train_accuracies)
-    np.save(f'{iter_i}_results/val_losses.npy', val_losses)
-    np.save(f'{iter_i}_results/val_accuracies.npy', val_accuracies)
+    np.save(f'iter{iter_i}_results/train_losses.npy', train_losses)
+    np.save(f'iter{iter_i}_results/train_accuracies.npy', train_accuracies)
+    np.save(f'iter{iter_i}_results/val_losses.npy', val_losses)
+    np.save(f'iter{iter_i}_results/val_accuracies.npy', val_accuracies)
 
     return train_losses_average, train_accuracies_average, \
            validation_losses_average, validation_accuracies_average
