@@ -36,17 +36,17 @@ def normalize(x):
 
 
 def create_dataset_for_k_fold(dir_path):
-    file_names = os.listdir(dir_path)
+    file_names = [file for file in os.listdir(dir_path) if file.endswith('.npy')]
     dataset_C, dataset_S, dataset_A = [], [], []
     name_C, name_S, name_A = [], [], []
     for f in file_names:
-        if f[-1] == 'C':
+        if f[-5] == 'C':
             dataset_C.append(np.load(os.path.join(dir_path, f)))
             name_C.append(f)
-        elif f[-1] == 'S':
+        elif f[-5] == 'S':
             dataset_S.append(np.load(os.path.join(dir_path, f)))
             name_S.append(f)
-        elif f[-1] == 'A':
+        elif f[-5] == 'A':
             dataset_A.append(np.load(os.path.join(dir_path, f)))
             name_A.append(f)
 
@@ -95,6 +95,7 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
             train_data_A
         ))
         train_labels = len(train_data_C) * [0] + len(train_data_S) * [1] + len(train_data_A) * [2]
+
         model = best_model_3classes()
 
         model.compile(optimizer='adam',
@@ -121,7 +122,8 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
 
         model.fit(
             train_data,
-            train_labels,
+            np.array(train_labels),
+            validation_data=(val_data, np.array(val_labels)),
             epochs=10000,
             callbacks=callbacks_list,
             verbose=0,
@@ -158,6 +160,7 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
            validation_losses_average, validation_accuracies_average
 
 
+
 def iterated_k_fold(iterations, k):
     print('Create initial dataset and labels')
     dataset_C, dataset_S, dataset_A, name_C, name_S, name_A = create_dataset_for_k_fold(
@@ -182,6 +185,7 @@ def iterated_k_fold(iterations, k):
         vaa_average.append(vaa)
         tla_average.append(tla)
         taa_average.append(taa)
+
     # save all values
     os.mkdir('k_fold_final_results')
     np.save('k_fold_final_results/tla_averages.npy', tla_average)
@@ -196,4 +200,5 @@ def iterated_k_fold(iterations, k):
 
 
 if __name__ == '__main__':
+    tf.random.set_seed(42)
     iterated_k_fold(10, 10)
