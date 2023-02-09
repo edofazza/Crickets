@@ -201,4 +201,4 @@ def iterated_k_fold(iterations, k):
 
 if __name__ == '__main__':
     tf.random.set_seed(42)
-    iterated_k_fold(10, 10)
+    iterated_k_fold(10, 4)
