@@ -131,8 +131,8 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
         )
         del model
         model = ks.models.load_model(f'iter{iter_i}fold{fold}.keras')
-        train_loss, train_accuracy = model.evaluate(train_data, train_labels)
-        val_loss, val_accuracy = model.evaluate(val_data, val_labels)
+        train_loss, train_accuracy = model.evaluate(train_data, np.array(train_labels))
+        val_loss, val_accuracy = model.evaluate(val_data, np.array(val_labels))
         train_losses.append(train_loss)
         train_accuracies.append(train_accuracy)
         val_losses.append(val_loss)
@@ -200,5 +200,6 @@ def iterated_k_fold(iterations, k):
 
 
 if __name__ == '__main__':
+    np.random.seed(42)
     tf.random.set_seed(42)
     iterated_k_fold(10, 4)
