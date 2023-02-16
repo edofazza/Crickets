@@ -3,6 +3,7 @@ from deap import creator
 from deap import tools
 
 import tensorflow as tf
+from tensorflow.keras.utils import get_custom_objects
 
 import random
 import numpy as np
@@ -11,9 +12,11 @@ import os
 
 import elitism
 from hyperparameters import LOWER_BOUNDS, UPPER_BOUNDS
-from problem import GeneticSearch
+from problem import GeneticSearch, combined_hyperbolic_sine
 
 NUM_OF_PARAMS = len(LOWER_BOUNDS)
+
+get_custom_objects().update({'combined_hyperbolic_sine': tf.keras.layers.Activation(combined_hyperbolic_sine)})
 
 
 def divide_sequence(sequence, length): # TODO: remove and use the one in utils

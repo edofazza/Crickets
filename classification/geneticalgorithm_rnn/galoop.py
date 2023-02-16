@@ -16,15 +16,7 @@ from problem import GeneticSearch
 NUM_OF_PARAMS = len(LOWER_BOUNDS)
 
 
-def divide_sequence(sequence, length):
-    """
-    From a sequence (joints_axis, frames) the function reduces the frame-length to
-    sequences of shape (joints_axis, length) and store them in a new np.array that
-    the function returns
-    :param sequence: numpy sequence
-    :param length: size of the window
-    :return: np.array containing all subsequences obtained from sequence
-    """
+def divide_sequence(sequence, length): # TODO: remove and use the one in utils
     if length == 3480:
         return np.array(sequence)
     _, dim = sequence.shape
@@ -35,66 +27,42 @@ def divide_sequence(sequence, length):
     return np.array(tmp)
 
 
-def normalize(x):
-    """
-    Normalize values in a sequence x considering its last axis
-    :param x: sequence
-    :return: normalized sequence
-    """
-    return tf.keras.utils.normalize(x, axis=-1)
-
-
-def create_dataset(first_stimulus_path, second_stimulus_path, third_stimulus_path=None, length=3480):
-    """
-    Create numpy dataset
-    :param first_stimulus_path: path to the numpy directory containing the npy sequences for the first stimulus
-    :param second_stimulus_path: path to the numpy directory containing the npy sequences for the second stimulus
-    :param third_stimulus_path: path to the numpy directory containing the npy third for the first stimulus (if None it will not be considered, i.e., binary case)
-    :param length: length of the (sub)sequences, in our case we use as default the total length (3480)
-    :return: a tuple in the form (data, labels)
-    """
+def create_dataset(control_path, sugar_path, ammonia_path=None, length=3480): # TODO: remove and use the one in utils
     if length < 3480:
         data = None
     else:
         data = []
     labels = []
-    tmp_list = [c for c in os.listdir(first_stimulus_path) if c.endswith('.npy')]
+    tmp_list = [c for c in os.listdir(control_path) if c.endswith('.npy')]
     for i in tmp_list:
-        tmp_npy = np.load(os.path.join(first_stimulus_path, i))
+        tmp_npy = np.load(os.path.join(control_path, i))
+        labels.append(0)
         if type(data) is list:
             data.append(tmp_npy)
-            labels.append(0)
         else:
             if data is None:
                 data = divide_sequence(tmp_npy, length)
-                labels = data.shape[0]*[0]
             else:
-                tmp_data = divide_sequence(tmp_npy, length)
-                data = np.r_[data, tmp_data]
-                labels.extend(tmp_data.shape[0] * [0])
+                data = np.r_[data, divide_sequence(tmp_npy, length)]
 
-    tmp_list = [c for c in os.listdir(second_stimulus_path) if c.endswith('.npy')]
+    tmp_list = [c for c in os.listdir(sugar_path) if c.endswith('.npy')]
     for i in tmp_list:
-        tmp_npy = np.load(os.path.join(second_stimulus_path, i))
+        tmp_npy = np.load(os.path.join(sugar_path, i))
+        labels.append(1)
         if type(data) is list:
             data.append(tmp_npy)
-            labels.append(1)
         else:
-            tmp_data = divide_sequence(tmp_npy, length)
-            data = np.r_[data, tmp_data]
-            labels.extend(tmp_data.shape[0]*[1])
+            data = np.r_[data, divide_sequence(tmp_npy, length)]
 
-    if third_stimulus_path is not None:
-        tmp_list = [c for c in os.listdir(third_stimulus_path) if c.endswith('.npy')]
+    if ammonia_path is not None:
+        tmp_list = [c for c in os.listdir(ammonia_path) if c.endswith('.npy')]
         for i in tmp_list:
-            tmp_npy = np.load(os.path.join(third_stimulus_path, i))
+            tmp_npy = np.load(os.path.join(ammonia_path, i))
+            labels.append(2)
             if type(data) is list:
                 data.append(tmp_npy)
-                labels.append(2)
             else:
-                tmp_data = divide_sequence(tmp_npy, length)
-                data = np.r_[data, tmp_data]
-                labels.extend(tmp_data.shape[0] * [2])
+                data = np.r_[data, divide_sequence(tmp_npy, length)]
 
     if type(data) is list:
         return normalize(np.array(data)), np.array(labels)
@@ -102,8 +70,12 @@ def create_dataset(first_stimulus_path, second_stimulus_path, third_stimulus_pat
         return normalize(data), np.array(labels)
 
 
+def normalize(x): # TODO: remove and use the one in utils
+    return tf.keras.utils.normalize(x, axis=-1)
+
+
 class GAloop:
-    def __init__(self, pop_size=200, p_co=0.9, p_mut=0.5, max_gen=10, hof=8, crowding_fa=20.0, multi_gpus=False):
+    def __init__(self, pop_size=250, p_co=0.9, p_mut=0.5, max_gen=50, hof=10, crowding_fa=20.0, multi_gpus=False):
         self.POPULATION_SIZE = pop_size
         self.P_CROSSOVER = p_co
         self.P_MUTATION = p_mut
@@ -243,8 +215,5 @@ if __name__ == '__main__':
         val_control_path='prediction_head_centered/control/val/',
         val_sugar_path='prediction_head_centered/sugar/val/',
         train_ammonia_path='prediction_head_centered/ammonia/train/',
-        val_ammonia_path='prediction_head_centered/ammonia/val/',
-        length=3190,
-        shape=(8, 3190),
-        epochs=10000
+        val_ammonia_path='prediction_head_centered/ammonia/val/'
     )

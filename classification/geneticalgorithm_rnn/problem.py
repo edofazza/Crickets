@@ -1,15 +1,21 @@
 from tensorflow import keras as ks
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras import backend as K
 import atexit
 from argparse import ArgumentParser
+
+
+def combined_hyperbolic_sine(x):
+    return (K.exp(x) - K.exp(-x)) / 2 + K.log(x + K.sqrt(x ** 2 + 1))
 
 
 class GeneticSearch:
     BINARY_LOSS = 'binary_crossentropy'
     LOSS = 'sparse_categorical_crossentropy'
 
-    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(8, 3480), classes=2, multi_gpus=False):
+    def __init__(self, train_set, train_labels, val_set, val_labels, batch_size=16, epochs=1000, shape=(8, 3480),
+                 classes=2, multi_gpus=False):
         self.train_set = train_set
         self.train_labels = train_labels
         self.val_set = val_set
@@ -22,8 +28,10 @@ class GeneticSearch:
         self.already_trained = dict()
 
     def _build_model(self, gene):
+        rnn_layer = ['lstm', 'gru']
+        bi_layer = ['', 'bi']
         activations = [
-            'sigmoid', 'swish', 'tanh', 'relu', 'gelu', 'elu', 'leaky_relu'
+            'sigmoid', 'swish', 'tanh', 'relu', 'chs', 'gelu', 'elu', 'leaky_relu'
         ]
 
         name = ''
@@ -36,40 +44,76 @@ class GeneticSearch:
         inputs = ks.Input(shape=self.shape)
 
         x = data_augmentation(inputs)
-
-        # Conv layers
-        for i in range(0, 25, 6):
-            if int(gene[i]) == 0:
-                continue
-            x = ks.layers.Conv1D(
-                int(gene[i+1]),
-                3,
-                padding='SAME'
-            )(x)
-            name += f'Conv{int(gene[i+1])}'
-            if int(gene[i+2]) == 1:
-                x = ks.layers.BatchNormalization()(x)
-                name += 'Batch'
-            x = ks.layers.Activation(activations[int(gene[i+3])])(x)
-            name += activations[int(gene[i+3])]
-
-            if int(gene[i+4]) == 1:
-                dropout_rate = self._round_to_05(gene[i+5])
-                if dropout_rate == 0.0:
-                    continue
-                x = ks.layers.Dropout(dropout_rate)(x)
-                name += f'Drop{dropout_rate}'
-
-        # Middle layer
-        if int(gene[30]) == 0:
-            x = ks.layers.Flatten()(x)
-            name += 'Flatten'
-        else:
-            x = ks.layers.GlobalAveragePooling1D()(x)
-            name += 'Global'
+        """
+        Check the present parameters and create array containing the index of
+        all presents
+        """
+        # Check with RNN layer are present
+        present_rnn_layers = [i for i in range(0, 21, 5) if int(gene[i]) == 1]
+        for layer, i in enumerate(present_rnn_layers):
+            if int(gene[i + 1]) == 1:  # Bidirectional
+                if int(gene[i + 2]) == 0:  # LSTM
+                    if int(gene[i + 4]) != 4:
+                        x = ks.layers.Bidirectional(
+                            ks.layers.LSTM(
+                                int(gene[i + 3]),
+                                activation=activations[int(gene[i + 4])],
+                                return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                            ))(x)
+                    else:  # case with Combined Hyperbolic Sine
+                        x = ks.layers.Bidirectional(
+                            ks.layers.LSTM(
+                                int(gene[i + 3]),
+                                activation=combined_hyperbolic_sine,
+                                return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                            ))(x)
+                else:  # GRU
+                    if int(gene[i + 4]) != 4:
+                        x = ks.layers.Bidirectional(
+                            ks.layers.GRU(
+                                int(gene[i + 3]),
+                                activation=activations[int(gene[i + 4])],
+                                return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                            ))(x)
+                    else:  # case with Combined Hyperbolic Sine
+                        x = ks.layers.Bidirectional(
+                            ks.layers.GRU(
+                                int(gene[i + 3]),
+                                activation=combined_hyperbolic_sine,
+                                return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                            ))(x)
+            else:
+                if int(gene[i + 2]) == 0:  # LSTM
+                    if int(gene[i + 4]) != 4:
+                        x = ks.layers.LSTM(
+                            int(gene[i + 3]),
+                            activation=activations[int(gene[i + 4])],
+                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                        )(x)
+                    else:  # case with Combined Hyperbolic Sine
+                        x = ks.layers.LSTM(
+                            int(gene[i + 3]),
+                            activation=combined_hyperbolic_sine,
+                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                        )(x)
+                else:  # GRU
+                    if int(gene[i + 4]) != 4:
+                        x = ks.layers.GRU(
+                            int(gene[i + 3]),
+                            activation=activations[int(gene[i + 4])],
+                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                        )(x)
+                    else:  # case with Combined Hyperbolic Sine
+                        x = ks.layers.GRU(
+                            int(gene[i + 3]),
+                            activation=combined_hyperbolic_sine,
+                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                        )(x)
+            name += f'{bi_layer[int(gene[i + 1])]}{rnn_layer[int(gene[i + 2])]}' \
+                    f'{int(gene[i + 3])}{activations[int(gene[i + 4])]}'
 
         # FCC layers
-        for i in range(31, 52, 5):
+        for i in range(25, 46, 5):
             if int(gene[i]) == 0:
                 continue
             x = ks.layers.Dense(
@@ -79,7 +123,7 @@ class GeneticSearch:
             name += f'Dense{int(gene[i + 1])}{activations[int(gene[i + 2])]}'
 
             if int(gene[i + 3]) == 1:
-                dropout_rate = self._round_to_05(gene[i+4])
+                dropout_rate = self._round_to_05(gene[i + 4])
                 if dropout_rate == 0.0:
                     continue
                 x = ks.layers.Dropout(dropout_rate)(x)
@@ -99,11 +143,11 @@ class GeneticSearch:
 
     def _build_train(self, gene):
         # check feasibility to avoid to start constructing
-        if int(gene[0]) == 0 and int(gene[6]) == 0 and int(gene[12]) == 0\
-                and int(gene[18]) == 0 and int(gene[24]) == 0:
+        if int(gene[0]) == 0 and int(gene[5]) == 0 and int(gene[10]) == 0 \
+                and int(gene[15]) == 0 and int(gene[20]) == 0:
             return 20
 
-        if self.multi_gpus: # allow multiple gpus
+        if self.multi_gpus:  # allow multiple gpus
             mirrored_strategy = tf.distribute.MirroredStrategy()
             with mirrored_strategy.scope():
                 name, model = self._build_model(gene)
@@ -116,7 +160,7 @@ class GeneticSearch:
         callback_list = [
             ks.callbacks.EarlyStopping(
                 monitor='val_loss',
-                patience=300,
+                patience=100,
             ),
             ks.callbacks.ModelCheckpoint(
                 filepath=f'{name}.keras',
@@ -164,14 +208,13 @@ class GeneticSearch:
         model = ks.models.load_model(name + '.keras')
         train_loss, train_accuracy = model.evaluate(self.train_set, self.train_labels)
         val_loss, val_accuracy = model.evaluate(self.val_set, self.val_labels)
-        print(f'{name}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}')
+        print(
+            f'{name}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}')
         del model
         ks.backend.clear_session()
 
         if train_accuracy <= 0.5 or val_accuracy <= 0.5 or train_accuracy < val_accuracy:
-            return 10*(1-train_accuracy)
-        if train_accuracy <= 0.2 or val_accuracy <= 0.2:
-            return 15
+            return 10 * (1 - train_accuracy)
 
         self.already_trained[name] = result
 
@@ -180,7 +223,7 @@ class GeneticSearch:
         return result
 
     def _round_to_05(self, x):
-        return round(x*20) / 20
+        return round(x * 20) / 20
 
     def get_val_loss(self, gene):
         return self._build_train(gene)
@@ -199,6 +242,5 @@ if __name__ == '__main__':
     test = GeneticSearch(np.load(opt['train_set_path']),
                          np.load(opt['train_lab_path']),
                          np.load(opt['val_set_path']),
-                         np.load(opt['val_lab_path']),)
+                         np.load(opt['val_lab_path']), )
     test.get_val_loss(weights)
-
