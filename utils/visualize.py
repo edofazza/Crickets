@@ -71,3 +71,50 @@ def conf_matrix(model_path, stim1_dir_path, stim2_dir_path, stim3_dir_path=None,
     fig = sn.heatmap(df_cm, annot=True, annot_kws={'size': 16}).get_figure()
     if save_png:
         fig.savefig(path_png)
+
+
+def boxplot_iterated_k_crossvalidation():
+    iter0 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter0_results/train_accuracies.npy").tolist()
+    iter1 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter1_results/train_accuracies.npy").tolist()
+    iter2 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter2_results/train_accuracies.npy").tolist()
+    iter3 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter3_results/train_accuracies.npy").tolist()
+    iter4 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter4_results/train_accuracies.npy").tolist()
+    iter5 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter5_results/train_accuracies.npy").tolist()
+    iter6 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter6_results/train_accuracies.npy").tolist()
+    iter7 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter7_results/train_accuracies.npy").tolist()
+    iter8 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter8_results/train_accuracies.npy").tolist()
+    iter9 = np.load(
+        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_cross_validation/results/iter9_results/train_accuracies.npy").tolist()
+    my_dict = {'0': iter0, '1': iter1, '2': iter2,
+               '3': iter3, '4': iter4, '5': iter5,
+               '6': iter6, '7': iter7, '8': iter8, '9': iter9}
+    fig, ax = plt.subplots()
+    ax.boxplot(my_dict.values())
+    ax.set_xticklabels(my_dict.keys())
+    plt.title('Iterated Cross-Validation')
+    plt.xlabel('Iteration')
+    plt.ylabel('Accuracy')
+    plt.savefig('boxplot.png')
+
+
+if __name__ == '__main__':
+    boxplot_iterated_k_crossvalidation()
