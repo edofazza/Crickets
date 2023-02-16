@@ -1,34 +1,9 @@
 import tensorflow as tf
-from tensorflow import keras as ks
 import numpy as np
 import os
 import gc
 from sklearn.ensemble import RandomForestClassifier
-
-
-def best_model_3classes(shape=(8, 3480)):
-    inputs = ks.Input(shape=shape)
-    data_augmentation = ks.Sequential(
-        [
-            ks.layers.GaussianNoise(0.5)
-        ]
-    )
-    x = data_augmentation(inputs)
-    x = ks.layers.Conv1D(821, 3, padding='SAME')(x)
-    x = ks.layers.BatchNormalization()(x)
-    x = ks.layers.Activation('tanh', name='tanh_1')(x)
-    x = ks.layers.Conv1D(668, 3, padding='SAME')(x)
-    x = ks.layers.Activation('elu', name='elu_1')(x)
-    x = ks.layers.Dropout(0.2)(x)
-    x = ks.layers.Conv1D(483, 3, padding='SAME')(x)
-    x = ks.layers.Activation('tanh', name='tanh_2')(x)
-    x = ks.layers.Flatten()(x)
-    outputs = ks.layers.Dense(3, activation='softmax')(x)
-    return ks.Model(inputs, outputs)
-
-
-def best_rnn_3classes():
-    pass
+from sklearn.metrics import accuracy_score
 
 
 def normalize(x):
@@ -66,9 +41,7 @@ def permute(dataset):
 
 def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='cnn'):
     num_validation_samples = 5  # 22%
-    train_losses = []
     train_accuracies = []
-    val_losses = []
     val_accuracies = []
 
     for fold in range(k):
@@ -99,83 +72,34 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='c
             train_data_S,
             train_data_A
         ))
+        train_data.reshape(shape=(train_data[0], train_data[1]*train_data[2]))
         train_labels = len(train_data_C) * [0] + len(train_data_S) * [1] + len(train_data_A) * [2]
-        print(train_data.shape)
-        if model_type == 'cnn':
-            model = best_model_3classes()
-        else:
-            model = best_rnn_3classes()
+        
 
-        model.compile(optimizer='adam',
-                      loss='sparse_categorical_crossentropy',
-                      metrics=['accuracy'])
 
-        callbacks_list = [
-            ks.callbacks.EarlyStopping(
-                monitor='val_loss',
-                patience=500,
-            ),
-            ks.callbacks.ModelCheckpoint(
-                filepath=f'iter{iter_i}fold{fold}.keras',
-                monitor='val_loss',
-                save_best_only=True,
-                restore_best_weights=True
-            ),
-            ks.callbacks.ReduceLROnPlateau(
-                patience=100,
-                factor=0.5,
-                min_delta=1e-3,
-            )
-        ]
-
-        model.fit(
-            train_data,
-            np.array(train_labels),
-            validation_data=(val_data, np.array(val_labels)),
-            epochs=10000,
-            callbacks=callbacks_list,
-            verbose=0,
-            batch_size=16
-        )
-        del model
-        model = ks.models.load_model(f'iter{iter_i}fold{fold}.keras')
         train_loss, train_accuracy = model.evaluate(train_data, np.array(train_labels))
         val_loss, val_accuracy = model.evaluate(val_data, np.array(val_labels))
-        train_losses.append(train_loss)
         train_accuracies.append(train_accuracy)
-        val_losses.append(val_loss)
         val_accuracies.append(val_accuracy)
-        del model
-        ks.backend.clear_session()
         gc.collect()
 
     print('Final results:')
-    train_losses_average = np.average(train_losses)
-    print(f'\t-Average test losses:{train_losses_average}')
     train_accuracies_average = np.average(train_accuracies)
     print(f'\t-Average test accuracies:{train_accuracies_average}')
-    validation_losses_average = np.average(val_losses)
-    print(f'\t-Average validation losses:{validation_losses_average}')
     validation_accuracies_average = np.average(val_accuracies)
     print(f'\t-Average validation accuracies:{validation_accuracies_average}')
     # save all values
-    np.save(f'iter{iter_i}_results/train_losses.npy', train_losses)
     np.save(f'iter{iter_i}_results/train_accuracies.npy', train_accuracies)
-    np.save(f'iter{iter_i}_results/val_losses.npy', val_losses)
     np.save(f'iter{iter_i}_results/val_accuracies.npy', val_accuracies)
 
-    return train_losses_average, train_accuracies_average, \
-           validation_losses_average, validation_accuracies_average
-
+    return train_accuracies_average, validation_accuracies_average
 
 
 def iterated_k_fold(iterations, k):
     print('Create initial dataset and labels')
     dataset_C, dataset_S, dataset_A, name_C, name_S, name_A = create_dataset_for_k_fold(
         "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/prediction_head_centered/all")
-    tla_average = []  # train loss
     taa_average = []  # train accuracy
-    vla_average = []  # validation loss
     vaa_average = []  # validation accuracy
 
     print('Perform k-fold:')
@@ -188,22 +112,16 @@ def iterated_k_fold(iterations, k):
         np.save(f'permutation_S_{i}.npy', p)
         dataset_A_tmp, p = permute(dataset_A)
         np.save(f'permutation_A_{i}.npy', p)
-        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='rnn')
-        vla_average.append(vla)
+        taa, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i)
         vaa_average.append(vaa)
-        tla_average.append(tla)
         taa_average.append(taa)
 
     # save all values
     os.mkdir('k_fold_final_results')
-    np.save('k_fold_final_results/tla_averages.npy', tla_average)
     np.save('k_fold_final_results/taa_averages.npy', taa_average)
-    np.save('k_fold_final_results/vla_averages.npy', vla_average)
     np.save('k_fold_final_results/vaa_averages.npy', vaa_average)
     print('[END] Iterated k-fold cross validation loop')
-    print(f'\t-Mean average validation losses:{np.average(vla_average)}')
     print(f'\t-Mean average validation accuracies:{np.average(vaa_average)}')
-    print(f'\t-Mean average test losses:{np.average(tla_average)}')
     print(f'\t-Mean average test accuracies:{np.average(taa_average)}')
 
 
