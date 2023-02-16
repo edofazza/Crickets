@@ -3,6 +3,7 @@ from tensorflow import keras as ks
 import numpy as np
 import os
 import gc
+from sklearn.ensemble import RandomForestClassifier
 
 
 def best_model_3classes(shape=(8, 3480)):
@@ -24,6 +25,10 @@ def best_model_3classes(shape=(8, 3480)):
     x = ks.layers.Flatten()(x)
     outputs = ks.layers.Dense(3, activation='softmax')(x)
     return ks.Model(inputs, outputs)
+
+
+def best_rnn_3classes():
+    pass
 
 
 def normalize(x):
@@ -59,7 +64,7 @@ def permute(dataset):
     return dataset[p], p
 
 
-def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
+def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='cnn'):
     num_validation_samples = 5  # 22%
     train_losses = []
     train_accuracies = []
@@ -95,8 +100,11 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
             train_data_A
         ))
         train_labels = len(train_data_C) * [0] + len(train_data_S) * [1] + len(train_data_A) * [2]
-
-        model = best_model_3classes()
+    
+        if model_type == 'cnn':
+            model = best_model_3classes()
+        else:
+            model = best_rnn_3classes()
 
         model.compile(optimizer='adam',
                       loss='sparse_categorical_crossentropy',
@@ -164,7 +172,7 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i):
 def iterated_k_fold(iterations, k):
     print('Create initial dataset and labels')
     dataset_C, dataset_S, dataset_A, name_C, name_S, name_A = create_dataset_for_k_fold(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/prediction_head_centered/all")
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/prediction_head_centered/all")
     tla_average = []  # train loss
     taa_average = []  # train accuracy
     vla_average = []  # validation loss
@@ -180,7 +188,7 @@ def iterated_k_fold(iterations, k):
         np.save(f'permutation_S_{i}.npy', p)
         dataset_A_tmp, p = permute(dataset_A)
         np.save(f'permutation_A_{i}.npy', p)
-        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i)
+        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='rnn')
         vla_average.append(vla)
         vaa_average.append(vaa)
         tla_average.append(tla)
