@@ -54,6 +54,7 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='c
             val_data_S,
             val_data_A
         ))
+        val_data = val_data.reshape(shape=(val_data.shape[0], val_data.shape[1]*val_data.shape[2]))
         val_labels = len(val_data_C) * [0] + len(val_data_S) * [1] + len(val_data_A) * [2]
         train_data_C = np.concatenate((
             dataset_C_tmp[:num_validation_samples * fold],
@@ -72,15 +73,17 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='c
             train_data_S,
             train_data_A
         ))
-        train_data.reshape(shape=(train_data[0], train_data[1]*train_data[2]))
+        train_data = train_data.reshape(shape=(train_data.shape[0], train_data.shape[1]*train_data.shape[2]))
         train_labels = len(train_data_C) * [0] + len(train_data_S) * [1] + len(train_data_A) * [2]
-        
 
+        forest = RandomForestClassifier(n_estimators=500, random_state=42)
+        forest.fit(train_data, train_labels)
+        train_accuracy = forest.score(train_data, np.array(train_labels))
+        val_accuracy = forest.score(val_data, np.array(val_labels))
 
-        train_loss, train_accuracy = model.evaluate(train_data, np.array(train_labels))
-        val_loss, val_accuracy = model.evaluate(val_data, np.array(val_labels))
         train_accuracies.append(train_accuracy)
         val_accuracies.append(val_accuracy)
+        del forest
         gc.collect()
 
     print('Final results:')
