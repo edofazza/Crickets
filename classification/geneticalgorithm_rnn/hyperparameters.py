@@ -4,13 +4,12 @@ Activation functions:
     - swish
     - tanh
     - relu
-    - Combined Hyperbolic Sine
     - gelu
     - elu
     - leaky_relu
 """
 ACTIVATION_LOWER_BOUND = 0.0
-ACTIVATION_UPPER_BOUND = 7.99
+ACTIVATION_UPPER_BOUND = 6.99
 
 """
 Type of RNN layer (LSTM, GRU)

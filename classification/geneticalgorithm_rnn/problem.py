@@ -1,14 +1,8 @@
 from tensorflow import keras as ks
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras import backend as K
 import atexit
 from argparse import ArgumentParser
-
-
-def combined_hyperbolic_sine(x):
-    return (K.exp(x) - K.exp(-x)) / 2 + K.log(x + K.sqrt(x ** 2 + 1))
-
 
 class GeneticSearch:
     BINARY_LOSS = 'binary_crossentropy'
@@ -31,7 +25,7 @@ class GeneticSearch:
         rnn_layer = ['lstm', 'gru']
         bi_layer = ['', 'bi']
         activations = [
-            'sigmoid', 'swish', 'tanh', 'relu', 'chs', 'gelu', 'elu', 'leaky_relu'
+            'sigmoid', 'swish', 'tanh', 'relu', 'gelu', 'elu', 'leaky_relu'
         ]
 
         name = ''
@@ -53,62 +47,61 @@ class GeneticSearch:
         for layer, i in enumerate(present_rnn_layers):
             if int(gene[i + 1]) == 1:  # Bidirectional
                 if int(gene[i + 2]) == 0:  # LSTM
-                    if int(gene[i + 4]) != 4:
-                        x = ks.layers.Bidirectional(
-                            ks.layers.LSTM(
-                                int(gene[i + 3]),
-                                activation=activations[int(gene[i + 4])],
-                                return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                            ))(x)
-                    else:  # case with Combined Hyperbolic Sine
+                    x = ks.layers.Bidirectional(
+                        ks.layers.LSTM(
+                            int(gene[i + 3]),
+                            activation=activations[int(gene[i + 4])],
+                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                        ))(x)
+                    """else:  # case with Combined Hyperbolic Sine
                         x = ks.layers.Bidirectional(
                             ks.layers.LSTM(
                                 int(gene[i + 3]),
                                 activation=combined_hyperbolic_sine,
                                 return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                            ))(x)
+                            ))(x)"""
                 else:  # GRU
-                    if int(gene[i + 4]) != 4:
-                        x = ks.layers.Bidirectional(
-                            ks.layers.GRU(
-                                int(gene[i + 3]),
-                                activation=activations[int(gene[i + 4])],
-                                return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                            ))(x)
-                    else:  # case with Combined Hyperbolic Sine
+                    #if int(gene[i + 4]) != 4:
+                    x = ks.layers.Bidirectional(
+                        ks.layers.GRU(
+                            int(gene[i + 3]),
+                            activation=activations[int(gene[i + 4])],
+                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                        ))(x)
+                    """else:  # case with Combined Hyperbolic Sine
                         x = ks.layers.Bidirectional(
                             ks.layers.GRU(
                                 int(gene[i + 3]),
                                 activation=combined_hyperbolic_sine,
                                 return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                            ))(x)
+                            ))(x)"""
             else:
-                if int(gene[i + 2]) == 0:  # LSTM
-                    if int(gene[i + 4]) != 4:
-                        x = ks.layers.LSTM(
-                            int(gene[i + 3]),
-                            activation=activations[int(gene[i + 4])],
-                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                        )(x)
-                    else:  # case with Combined Hyperbolic Sine
+                #if int(gene[i + 2]) == 0:  # LSTM
+                if int(gene[i + 4]) != 4:
+                    x = ks.layers.LSTM(
+                        int(gene[i + 3]),
+                        activation=activations[int(gene[i + 4])],
+                        return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                    )(x)
+                    """else:  # case with Combined Hyperbolic Sine
                         x = ks.layers.LSTM(
                             int(gene[i + 3]),
                             activation=combined_hyperbolic_sine,
                             return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                        )(x)
+                        )(x)"""
                 else:  # GRU
-                    if int(gene[i + 4]) != 4:
-                        x = ks.layers.GRU(
-                            int(gene[i + 3]),
-                            activation=activations[int(gene[i + 4])],
-                            return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                        )(x)
-                    else:  # case with Combined Hyperbolic Sine
+                    #if int(gene[i + 4]) != 4:
+                    x = ks.layers.GRU(
+                        int(gene[i + 3]),
+                        activation=activations[int(gene[i + 4])],
+                        return_sequences=False if layer == len(present_rnn_layers) - 1 else True
+                    )(x)
+                    """else:  # case with Combined Hyperbolic Sine
                         x = ks.layers.GRU(
                             int(gene[i + 3]),
                             activation=combined_hyperbolic_sine,
                             return_sequences=False if layer == len(present_rnn_layers) - 1 else True
-                        )(x)
+                        )(x)"""
             name += f'{bi_layer[int(gene[i + 1])]}{rnn_layer[int(gene[i + 2])]}' \
                     f'{int(gene[i + 3])}{activations[int(gene[i + 4])]}'
 
@@ -116,10 +109,12 @@ class GeneticSearch:
         for i in range(25, 46, 5):
             if int(gene[i]) == 0:
                 continue
+
             x = ks.layers.Dense(
                 int(gene[i + 1]),
                 activation=activations[int(gene[i + 2])]
             )(x)
+
             name += f'Dense{int(gene[i + 1])}{activations[int(gene[i + 2])]}'
 
             if int(gene[i + 3]) == 1:
@@ -213,7 +208,7 @@ class GeneticSearch:
         del model
         ks.backend.clear_session()
 
-        if train_accuracy <= 0.5 or val_accuracy <= 0.5 or train_accuracy < val_accuracy:
+        if train_accuracy <= 0.34 or val_accuracy <= 0.34 or train_accuracy < val_accuracy:
             return 10 * (1 - train_accuracy)
 
         self.already_trained[name] = result
