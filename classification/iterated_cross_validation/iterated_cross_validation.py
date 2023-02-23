@@ -3,7 +3,6 @@ from tensorflow import keras as ks
 import numpy as np
 import os
 import gc
-from sklearn.ensemble import RandomForestClassifier
 
 
 def best_model_3classes(shape=(8, 3480)):
@@ -27,8 +26,96 @@ def best_model_3classes(shape=(8, 3480)):
     return ks.Model(inputs, outputs)
 
 
-def best_rnn_3classes():
-    pass
+"""def best_rnn_3classes(shape=(8, 3480)):
+    # bigru965gelugru328leaky_reluDense324leaky_reluDrop0.2Dense359relu.keras
+    inputs = ks.Input(shape=shape)
+    data_augmentation = ks.Sequential(
+        [
+            ks.layers.GaussianNoise(0.5)
+        ]
+    )
+    x = data_augmentation(inputs)
+    x = ks.layers.Bidirectional(ks.layers.GRU(965, activation='gelu', return_sequences=True))(x)
+    x = ks.layers.GRU(328, activation='leaky_relu')(x)
+    x = ks.layers.Dense(324, activation='leaky_relu')(x)
+    x = ks.layers.Dropout(0.2)(x)
+    x = ks.layers.Dense(359, activation='relu')(x)
+    outputs = ks.layers.Dense(3, activation='softmax')(x)
+    return ks.Model(inputs, outputs)"""
+
+
+"""def best_rnn_3classes(shape=(8, 3480)):
+    # bigru488tanh bilstm826gelu gru660sigmoid Dense361sigmoid.keras
+    inputs = ks.Input(shape=shape)
+    data_augmentation = ks.Sequential(
+        [
+            ks.layers.GaussianNoise(0.5)
+        ]
+    )
+    x = data_augmentation(inputs)
+    x = ks.layers.Bidirectional(ks.layers.GRU(488, activation='tanh', return_sequences=True))(x)
+    x = ks.layers.Bidirectional(ks.layers.LSTM(826, activation='gelu', return_sequences=True))(x)
+    x = ks.layers.GRU(660, activation='sigmoid')(x)
+    x = ks.layers.Dense(361, activation='sigmoid')(x)
+    outputs = ks.layers.Dense(3, activation='softmax')(x)
+    return ks.Model(inputs, outputs)
+
+
+def best_rnn_3classes(shape=(8, 3480)):
+    # bilstm707elugru660leaky_relubigru469leaky_reluDense138geluDrop0.2Dense150leaky_relu.keras
+    inputs = ks.Input(shape=shape)
+    data_augmentation = ks.Sequential(
+        [
+            ks.layers.GaussianNoise(0.5)
+        ]
+    )
+    x = data_augmentation(inputs)
+    x = ks.layers.Bidirectional(ks.layers.LSTM(707, activation='elu', return_sequences=True))(x)
+    x = ks.layers.GRU(660, activation='leaky_relu', return_sequences=True)(x)
+    x = ks.layers.Bidirectional(ks.layers.GRU(469, activation='leaky_relu'))(x)
+    x = ks.layers.Dense(138, activation='gelu')(x)
+    x = ks.layers.Dropout(0.2)(x)
+    x = ks.layers.Dense(150, activation='leaky_relu')(x)
+    outputs = ks.layers.Dense(3, activation='softmax')(x)
+    return ks.Model(inputs, outputs)
+
+
+def best_rnn_3classes(shape=(8, 3480)):
+    # bigru796tanh Dense250leaky_relu Dense56geluDrop0.4 Dense31leaky_relu.keras
+    inputs = ks.Input(shape=shape)
+    data_augmentation = ks.Sequential(
+        [
+            ks.layers.GaussianNoise(0.5)
+        ]
+    )
+    x = data_augmentation(inputs)
+    x = ks.layers.Bidirectional(ks.layers.GRU(796, activation='tanh'))(x)
+    x = ks.layers.Dense(250, activation='leaky_relu')(x)
+    x = ks.layers.Dense(56, activation='gelu')(x)
+    x = ks.layers.Dropout(0.4)(x)
+    x = ks.layers.Dense(31, activation='leaky_relu')(x)
+    outputs = ks.layers.Dense(3, activation='softmax')(x)
+    return ks.Model(inputs, outputs)"""
+
+
+def best_rnn_3classes(shape=(8, 3480)):
+    # lstm846gelubigru155swishDense492tanhDrop0.15Dense326geluDense244leaky_reluDrop0.2.keras
+    inputs = ks.Input(shape=shape)
+    data_augmentation = ks.Sequential(
+        [
+            ks.layers.GaussianNoise(0.5)
+        ]
+    )
+    x = data_augmentation(inputs)
+    x = ks.layers.LSTM(846, activation='gelu', return_sequences=True)(x)
+    x = ks.layers.Bidirectional(ks.layers.GRU(155, activation='swish'))(x)
+    x = ks.layers.Dense(492, activation='tanh')(x)
+    x = ks.layers.Dropout(0.15)(x)
+    x = ks.layers.Dense(326, activation='gelu')(x)
+    x = ks.layers.Dense(244, activation='leaky_relu')(x)
+    outputs = ks.layers.Dense(3, activation='softmax')(x)
+    x = ks.layers.Dropout(0.2)(x)
+    return ks.Model(inputs, outputs)
 
 
 def normalize(x):
@@ -64,7 +151,7 @@ def permute(dataset):
     return dataset[p], p
 
 
-def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='cnn'):
+def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='rnn'):
     num_validation_samples = 5  # 22%
     train_losses = []
     train_accuracies = []
@@ -172,7 +259,7 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='c
 def iterated_k_fold(iterations, k):
     print('Create initial dataset and labels')
     dataset_C, dataset_S, dataset_A, name_C, name_S, name_A = create_dataset_for_k_fold(
-        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/predictions/prediction_head_centered/all")
+        "all/")
     tla_average = []  # train loss
     taa_average = []  # train accuracy
     vla_average = []  # validation loss

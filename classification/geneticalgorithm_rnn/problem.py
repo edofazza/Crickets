@@ -210,6 +210,8 @@ class GeneticSearch:
 
         if train_accuracy <= 0.34 or val_accuracy <= 0.34 or train_accuracy < val_accuracy:
             return 10 * (1 - train_accuracy)
+        if train_accuracy <= 0.1:
+            return 15
 
         self.already_trained[name] = result
 

@@ -93,7 +93,7 @@ class GAloop:
             val_ammonia_path=None,
             length=3480,
             shape=(8, 3480),
-            batch_size=16,
+            batch_size=8,
             epochs=1000
             ):
 
@@ -208,6 +208,9 @@ class GAloop:
 
 
 if __name__ == '__main__':
+    gpu_devices = tf.config.experimental.list_physical_devices("GPU")
+    for device in gpu_devices:
+        tf.config.experimental.set_memory_growth(device, True)
     ga = GAloop()
     ga.run( # control-sugar control-ammonia sugar-ammonia
         train_control_path='prediction_head_centered/control/train/',

@@ -76,7 +76,7 @@ def evaluate2(train_set, train_labels, val_set, val_labels, test_set, test_label
     train_loss, train_accuracy = model.evaluate(train_set, train_labels, verbose=False)
     val_loss, val_accuracy = model.evaluate(val_set, val_labels, verbose=False)
     test_loss, test_accuracy = model.evaluate(test_set, test_labels, verbose=False)
-    if test_accuracy > 0.5 and train_accuracy > 0.5 and val_accuracy > 0.5: # and train_accuracy > val_accuracy
+    if test_accuracy > 0.35 and train_accuracy > 0.35 and val_accuracy > 0.35: # and train_accuracy > val_accuracy
         print(f'{model_name}:\n\tTrain loss: {train_loss}\n\tTrain accuracy: {train_accuracy}\n\tVal loss: {val_loss}\n\tVal accuracy: {val_accuracy}\n\tTest loss: {test_loss}\n\tTest accuracy: {test_accuracy}')
 
 
