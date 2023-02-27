@@ -1,8 +1,8 @@
-# pippo.yaml
+# crickets.yaml
 #
-# install: conda env create -f pippo.yaml
-# update:  conda env update -f pippo.yaml
-name: PIPPO
+# install: conda env create -f crickets.yaml
+# update:  conda env update -f crickets.yaml
+name: crickets
 channels:
   - defaults
 dependencies:
