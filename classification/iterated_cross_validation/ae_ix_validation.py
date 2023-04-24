@@ -59,7 +59,7 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     ]
 
     autoencoder = Autoencoder(latent_dim, encoder_dim, decoder_dim)
-
+    autoencoder.build(shape)
     autoencoder.compile(optimizer='adam', loss='mse')
 
     autoencoder.fit(
