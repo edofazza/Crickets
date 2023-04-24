@@ -4,10 +4,10 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="pippo",
+    name="crickets",
     version='1.0',
     packages=find_packages(),
-    entry_points={"console_scripts": "pippo = pippo:main"},
+    entry_points={"console_scripts": "crickets = crickets:main"},
     author="E. Fazzari",
     description="Crickets.",
     long_description=long_description,

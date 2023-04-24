@@ -26,41 +26,6 @@ def best_model_3classes(shape=(8, 3480)):
     return ks.Model(inputs, outputs)
 
 
-"""def best_rnn_3classes(shape=(8, 3480)):
-    # bigru965gelugru328leaky_reluDense324leaky_reluDrop0.2Dense359relu.keras
-    inputs = ks.Input(shape=shape)
-    data_augmentation = ks.Sequential(
-        [
-            ks.layers.GaussianNoise(0.5)
-        ]
-    )
-    x = data_augmentation(inputs)
-    x = ks.layers.Bidirectional(ks.layers.GRU(965, activation='gelu', return_sequences=True))(x)
-    x = ks.layers.GRU(328, activation='leaky_relu')(x)
-    x = ks.layers.Dense(324, activation='leaky_relu')(x)
-    x = ks.layers.Dropout(0.2)(x)
-    x = ks.layers.Dense(359, activation='relu')(x)
-    outputs = ks.layers.Dense(3, activation='softmax')(x)
-    return ks.Model(inputs, outputs)"""
-
-
-"""def best_rnn_3classes(shape=(8, 3480)):
-    # bigru488tanh bilstm826gelu gru660sigmoid Dense361sigmoid.keras
-    inputs = ks.Input(shape=shape)
-    data_augmentation = ks.Sequential(
-        [
-            ks.layers.GaussianNoise(0.5)
-        ]
-    )
-    x = data_augmentation(inputs)
-    x = ks.layers.Bidirectional(ks.layers.GRU(488, activation='tanh', return_sequences=True))(x)
-    x = ks.layers.Bidirectional(ks.layers.LSTM(826, activation='gelu', return_sequences=True))(x)
-    x = ks.layers.GRU(660, activation='sigmoid')(x)
-    x = ks.layers.Dense(361, activation='sigmoid')(x)
-    outputs = ks.layers.Dense(3, activation='softmax')(x)
-    return ks.Model(inputs, outputs)
-
-
 def best_rnn_3classes(shape=(8, 3480)):
     # bilstm707elugru660leaky_relubigru469leaky_reluDense138geluDrop0.2Dense150leaky_relu.keras
     inputs = ks.Input(shape=shape)
@@ -77,44 +42,6 @@ def best_rnn_3classes(shape=(8, 3480)):
     x = ks.layers.Dropout(0.2)(x)
     x = ks.layers.Dense(150, activation='leaky_relu')(x)
     outputs = ks.layers.Dense(3, activation='softmax')(x)
-    return ks.Model(inputs, outputs)
-
-
-def best_rnn_3classes(shape=(8, 3480)):
-    # bigru796tanh Dense250leaky_relu Dense56geluDrop0.4 Dense31leaky_relu.keras
-    inputs = ks.Input(shape=shape)
-    data_augmentation = ks.Sequential(
-        [
-            ks.layers.GaussianNoise(0.5)
-        ]
-    )
-    x = data_augmentation(inputs)
-    x = ks.layers.Bidirectional(ks.layers.GRU(796, activation='tanh'))(x)
-    x = ks.layers.Dense(250, activation='leaky_relu')(x)
-    x = ks.layers.Dense(56, activation='gelu')(x)
-    x = ks.layers.Dropout(0.4)(x)
-    x = ks.layers.Dense(31, activation='leaky_relu')(x)
-    outputs = ks.layers.Dense(3, activation='softmax')(x)
-    return ks.Model(inputs, outputs)"""
-
-
-def best_rnn_3classes(shape=(8, 3480)):
-    # lstm846gelubigru155swishDense492tanhDrop0.15Dense326geluDense244leaky_reluDrop0.2.keras
-    inputs = ks.Input(shape=shape)
-    data_augmentation = ks.Sequential(
-        [
-            ks.layers.GaussianNoise(0.5)
-        ]
-    )
-    x = data_augmentation(inputs)
-    x = ks.layers.LSTM(846, activation='gelu', return_sequences=True)(x)
-    x = ks.layers.Bidirectional(ks.layers.GRU(155, activation='swish'))(x)
-    x = ks.layers.Dense(492, activation='tanh')(x)
-    x = ks.layers.Dropout(0.15)(x)
-    x = ks.layers.Dense(326, activation='gelu')(x)
-    x = ks.layers.Dense(244, activation='leaky_relu')(x)
-    outputs = ks.layers.Dense(3, activation='softmax')(x)
-    x = ks.layers.Dropout(0.2)(x)
     return ks.Model(inputs, outputs)
 
 

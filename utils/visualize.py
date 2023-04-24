@@ -75,35 +75,44 @@ def conf_matrix(model_path, stim1_dir_path, stim2_dir_path, stim3_dir_path=None,
 
 def boxplot_iterated_k_crossvalidation():
     iter0 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter0_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense138"
+        "geluDrop0.2Dense150leaky_relu/results/iter0_results/val_accuracies.npy").tolist()
     iter1 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter1_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense138"
+        "geluDrop0.2Dense150leaky_relu/results/iter1_results/val_accuracies.npy").tolist()
     iter2 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter2_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense"
+        "138geluDrop0.2Dense150leaky_relu/results/iter2_results/val_accuracies.npy").tolist()
     iter3 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter3_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense"
+        "138geluDrop0.2Dense150leaky_relu/results/iter3_results/val_accuracies.npy").tolist()
     iter4 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter4_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
+        "results/secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense"
+        "138geluDrop0.2Dense150leaky_relu/results/iter4_results/val_accuracies.npy").tolist()
     iter5 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter5_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/results/"
+        "secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense138"
+        "geluDrop0.2Dense150leaky_relu/results/iter5_results/val_accuracies.npy").tolist()
     iter6 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter6_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/results/"
+        "secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense138geluDrop0.2"
+        "Dense150leaky_relu/results/iter6_results/val_accuracies.npy").tolist()
     iter7 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter7_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/results/"
+        "secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense138geluDrop0.2"
+        "Dense150leaky_relu/results/iter7_results/val_accuracies.npy").tolist()
     iter8 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter8_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/results/"
+        "secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense138geluDrop0.2"
+        "Dense150leaky_relu/results/iter8_results/val_accuracies.npy").tolist()
     iter9 = np.load(
-        "/Users/edoardo/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/"
-        "results/secondphase/iterated_cross_validation/results/iter9_results/train_accuracies.npy").tolist()
+        "/Users/edofazza/Library/CloudStorage/OneDrive-ScuolaSuperioreSant'Anna/PhD/reseaches/crickets/results/secondphase/iterated_kfold_rnn/rrn3-bilstm707elugru660leaky_relubigru469leaky_reluDense138geluDrop0.2Dense150leaky_relu/results"
+        "/iter9_results/val_accuracies.npy").tolist()
     my_dict = {'0': iter0, '1': iter1, '2': iter2,
                '3': iter3, '4': iter4, '5': iter5,
                '6': iter6, '7': iter7, '8': iter8, '9': iter9}
