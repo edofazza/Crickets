@@ -95,8 +95,8 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     inputs = ks.Input(shape)
     x = data_augmentation(inputs)
     x = encoder(x)
-    x = ks.layer.GRU(128, return_sequences=False)(x)
-    outputs = ks.layer.Dense(3, activation='softmax')(x)
+    x = ks.layers.GRU(128, return_sequences=False)(x)
+    outputs = ks.layers.Dense(3, activation='softmax')(x)
     model = ks.Model(inputs, outputs)
     model.summary()
 
