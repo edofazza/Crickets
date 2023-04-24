@@ -6,28 +6,28 @@ import gc
 
 
 class Autoencoder(ks.models.Model):
-  def __init__(self, latent_dim, encoder_dim, decoder_dim):
-    super(Autoencoder, self).__init__()
-    self.data_augmentation = ks.Sequential(
-        [
-            ks.layers.GaussianNoise(0.5)
-        ]
-    )
-    self.latent_dim = latent_dim
-    self.decoder_dim = decoder_dim
-    self.encoder_dim = encoder_dim
-    self.encoder = tf.keras.Sequential([
-      ks.layers.Bidirectional(ks.layers.GRU(self.encoder_dim, return_sequences=True)),
-      ks.layers.Bidirectional(ks.layers.GRU(self.latent_dim, return_sequences=True), merge_mode='sum'),
-    ])
-    self.decoder = tf.keras.Sequential([
-      ks.layers.Bidirectional(ks.layers.GRU(self.decoder_dim, return_sequences=True)),
-    ])
+    def __init__(self, latent_dim, encoder_dim, decoder_dim):
+        super(Autoencoder, self).__init__()
+        self.data_augmentation = ks.Sequential(
+            [
+                ks.layers.GaussianNoise(0.5)
+            ]
+        )
+        self.latent_dim = latent_dim
+        self.decoder_dim = decoder_dim
+        self.encoder_dim = encoder_dim
+        self.encoder = tf.keras.Sequential([
+            ks.layers.Bidirectional(ks.layers.GRU(self.encoder_dim, return_sequences=True)),
+            ks.layers.Bidirectional(ks.layers.GRU(self.latent_dim, return_sequences=True), merge_mode='sum'),
+        ])
+        self.decoder = tf.keras.Sequential([
+            ks.layers.Bidirectional(ks.layers.GRU(self.decoder_dim, return_sequences=True)),
+        ])
 
-  def call(self, x):
-    encoded = self.encoder(x)
-    decoded = self.decoder(encoded)
-    return decoded
+    def call(self, x):
+        encoded = self.encoder(x)
+        decoded = self.decoder(encoded)
+        return decoded
 
 
 def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, val_set, val_labels, iter_i, fold):
