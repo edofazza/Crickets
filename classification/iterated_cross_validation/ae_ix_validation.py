@@ -58,8 +58,16 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
         )
     ]
 
-    autoencoder = Autoencoder(latent_dim, encoder_dim, decoder_dim)
-    autoencoder.build(shape)
+    inputs = ks.Input((8, 3480))
+    encoder = ks.Sequential(
+        [ks.layers.Bidirectional(ks.layers.GRU(1024, return_sequences=True)),
+         ks.layers.Bidirectional(ks.layers.GRU(512, return_sequences=True), merge_mode='sum')],
+        name='encoder'
+    )(inputs)
+    decoder = ks.layers.Bidirectional(ks.layers.GRU(1024, return_sequences=True), name='decoder')(encoder)
+    outputs = ks.layers.Dense(3480)(decoder)
+    autoencoder = ks.Model(inputs, outputs)
+    autoencoder.summary()
     autoencoder.compile(optimizer='adam', loss='mse')
 
     autoencoder.fit(
@@ -82,7 +90,7 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     )
 
     encoder = ks.models.load_model(f'ae_iter{iter_i}fold{fold}.keras')
-    encoder = encoder.encoder
+    encoder = ks.Model(encoder.get_layer("encoder").inputs, encoder.get_layer("encoder").output)
     encoder.trainable = False
     inputs = ks.Input(shape)
     x = data_augmentation(inputs)
