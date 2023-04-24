@@ -60,11 +60,11 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
 
     inputs = ks.Input((8, 3480))
     encoder = ks.Sequential(
-        [ks.layers.Bidirectional(ks.layers.GRU(1024, return_sequences=True)),
-         ks.layers.Bidirectional(ks.layers.GRU(512, return_sequences=True), merge_mode='sum')],
+        [ks.layers.Bidirectional(ks.layers.GRU(encoder_dim, return_sequences=True)),
+         ks.layers.Bidirectional(ks.layers.GRU(latent_dim, return_sequences=True), merge_mode='sum')],
         name='encoder'
     )(inputs)
-    decoder = ks.layers.Bidirectional(ks.layers.GRU(1024, return_sequences=True), name='decoder')(encoder)
+    decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim, return_sequences=True), name='decoder')(encoder)
     outputs = ks.layers.Dense(3480)(decoder)
     autoencoder = ks.Model(inputs, outputs)
     autoencoder.summary()
@@ -72,8 +72,8 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
 
     autoencoder.fit(
         train_set,
-        train_labels,
-        validation_data=(val_set, val_labels),
+        train_set,
+        validation_data=(val_set, val_set),
         epochs=10000,
         callbacks=callbacks_list,
         verbose=0,
