@@ -40,6 +40,8 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     ]
 
     inputs = ks.Input((8, 3480))
+    """
+    # GENERAL AE
     encoder = ks.Sequential(
         [ks.layers.Bidirectional(ks.layers.GRU(encoder_dim, return_sequences=True)),
          ks.layers.Bidirectional(ks.layers.GRU(encoder_dim // 2, return_sequences=True)),
@@ -50,7 +52,31 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim // 4, return_sequences=True), name='decoder_0')(encoder)
     decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim // 2, return_sequences=True), name='decoder_1')(decoder)
     decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim, return_sequences=True), name='decoder_2')(decoder)
-    outputs = ks.layers.Dense(3480)(decoder)
+    outputs = ks.layers.Dense(3480)(decoder)"""
+    """
+    BEST LSTM
+    encoder = ks.Sequential(
+        [
+            ks.layers.Bidirectional(ks.layers.LSTM(707, activation='elu', return_sequences=True)),
+            ks.layers.GRU(660, activation='leaky_relu', return_sequences=True)
+        ],
+        name='encoder'
+    )(inputs)
+    outputs = ks.layers.Dense(3480)(encoder)"""
+    encoder = ks.Sequential(
+        [
+            ks.layers.Conv1D(821, 3, padding='SAME'),
+            ks.layers.BatchNormalization(),
+            ks.layers.Activation('tanh', name='tanh_1'),
+            ks.layers.Conv1D(668, 3, padding='SAME'),
+            ks.layers.Activation('elu', name='elu_1'),
+            ks.layers.Conv1D(483, 3, padding='SAME'),
+            ks.layers.Activation('tanh', name='tanh_2')
+        ]
+    )(inputs)
+    decoder = ks.layers.Conv1DTranspose(668, 3, padding='SAME', activation='relu')(encoder)
+    decoder = ks.layers.Conv1DTranspose(821, 3, padding='SAME', activation='relu')(decoder)
+    outputs = ks.layers.Conv1DTranspose(3480, 3, padding='SAME', activation='relu')(decoder)
     autoencoder = ks.Model(inputs, outputs)
     autoencoder.summary()
     autoencoder.compile(optimizer='adam', loss='mse')
@@ -74,7 +100,11 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     inputs = ks.Input(shape)
     x = data_augmentation(inputs)
     x = encoder(x)
-    x = ks.layers.GRU(128, return_sequences=False)(x)
+    """x = ks.layers.GRU(128, return_sequences=False)(x)"""
+    x = ks.layers.Bidirectional(ks.layers.GRU(469, activation='leaky_relu'))(x)
+    x = ks.layers.Dense(138, activation='gelu')(x)
+    x = ks.layers.Dropout(0.2)(x)
+    x = ks.layers.Dense(150, activation='leaky_relu')(x)
     outputs = ks.layers.Dense(3, activation='softmax')(x)
     model = ks.Model(inputs, outputs)
     model.summary()
