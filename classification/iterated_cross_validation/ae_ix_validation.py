@@ -5,31 +5,6 @@ import os
 import gc
 
 
-class Autoencoder(ks.models.Model):
-    def __init__(self, latent_dim, encoder_dim, decoder_dim):
-        super(Autoencoder, self).__init__()
-        self.data_augmentation = ks.Sequential(
-            [
-                ks.layers.GaussianNoise(0.5)
-            ]
-        )
-        self.latent_dim = latent_dim
-        self.decoder_dim = decoder_dim
-        self.encoder_dim = encoder_dim
-        self.encoder = tf.keras.Sequential([
-            ks.layers.Bidirectional(ks.layers.GRU(self.encoder_dim, return_sequences=True)),
-            ks.layers.Bidirectional(ks.layers.GRU(self.latent_dim, return_sequences=True), merge_mode='sum'),
-        ])
-        self.decoder = tf.keras.Sequential([
-            ks.layers.Bidirectional(ks.layers.GRU(self.decoder_dim, return_sequences=True)),
-        ])
-
-    def call(self, x):
-        encoded = self.encoder(x)
-        decoded = self.decoder(encoded)
-        return decoded
-
-
 def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, val_set, val_labels, iter_i, fold):
     # call autoencoder
     # train autoencoder
@@ -40,6 +15,12 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     # load
     # train
     # clean
+    data_augmentation = ks.Sequential(
+        [
+            ks.layers.GaussianNoise(0.5)
+        ]
+    )
+
     callbacks_list = [
         ks.callbacks.EarlyStopping(
             monitor='val_loss',
@@ -61,10 +42,14 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     inputs = ks.Input((8, 3480))
     encoder = ks.Sequential(
         [ks.layers.Bidirectional(ks.layers.GRU(encoder_dim, return_sequences=True)),
+         ks.layers.Bidirectional(ks.layers.GRU(encoder_dim // 2, return_sequences=True)),
+         ks.layers.Bidirectional(ks.layers.GRU(encoder_dim // 4, return_sequences=True)),
          ks.layers.Bidirectional(ks.layers.GRU(latent_dim, return_sequences=True), merge_mode='sum')],
         name='encoder'
     )(inputs)
-    decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim, return_sequences=True), name='decoder')(encoder)
+    decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim // 4, return_sequences=True), name='decoder_0')(encoder)
+    decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim // 2, return_sequences=True), name='decoder_1')(decoder)
+    decoder = ks.layers.Bidirectional(ks.layers.GRU(decoder_dim, return_sequences=True), name='decoder_2')(decoder)
     outputs = ks.layers.Dense(3480)(decoder)
     autoencoder = ks.Model(inputs, outputs)
     autoencoder.summary()
@@ -82,12 +67,6 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     del autoencoder
     ks.backend.clear_session()
     gc.collect()
-
-    data_augmentation = ks.Sequential(
-        [
-            ks.layers.GaussianNoise(0.5)
-        ]
-    )
 
     encoder = ks.models.load_model(f'ae_iter{iter_i}fold{fold}.keras')
     encoder = ks.Model(encoder.get_layer("encoder").inputs, encoder.get_layer("encoder").output)
@@ -258,9 +237,9 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='r
 
         train_loss, train_accuracy, val_loss, val_accuracy = train(
             (8, 3480),
-            512,
-            1024,
-            1024,
+            128, # latent
+            1024, # encoder
+            1024, # decoder
             train_data,
             np.array(train_labels),
             val_data,
