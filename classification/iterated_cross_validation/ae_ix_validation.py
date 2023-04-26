@@ -72,7 +72,7 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
             ks.layers.Activation('elu', name='elu_1'),
             ks.layers.Conv1D(483, 3, padding='SAME'),
             ks.layers.Activation('tanh', name='tanh_2')
-        ]
+        ], name='encoder'
     )(inputs)
     decoder = ks.layers.Conv1DTranspose(668, 3, padding='SAME', activation='relu')(encoder)
     decoder = ks.layers.Conv1DTranspose(821, 3, padding='SAME', activation='relu')(decoder)
@@ -101,10 +101,11 @@ def train(shape, latent_dim, encoder_dim, decoder_dim, train_set, train_labels, 
     x = data_augmentation(inputs)
     x = encoder(x)
     """x = ks.layers.GRU(128, return_sequences=False)(x)"""
-    x = ks.layers.Bidirectional(ks.layers.GRU(469, activation='leaky_relu'))(x)
+    """x = ks.layers.Bidirectional(ks.layers.GRU(469, activation='leaky_relu'))(x)
     x = ks.layers.Dense(138, activation='gelu')(x)
     x = ks.layers.Dropout(0.2)(x)
-    x = ks.layers.Dense(150, activation='leaky_relu')(x)
+    x = ks.layers.Dense(150, activation='leaky_relu')(x)"""
+    x = ks.layers.Flatten()(x)
     outputs = ks.layers.Dense(3, activation='softmax')(x)
     model = ks.Model(inputs, outputs)
     model.summary()
