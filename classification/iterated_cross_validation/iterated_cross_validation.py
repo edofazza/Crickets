@@ -3,7 +3,113 @@ from tensorflow import keras as ks
 import numpy as np
 import os
 import gc
+from tensorflow.keras.layers import Input, Conv1D, BatchNormalization, Activation, Add, GlobalAveragePooling1D, Dense
 
+# Basic 1D Residual Block
+def basic_residual_block(x, filters, kernel_size, stride=1, activation='relu', batch_norm=True, conv_first=True):
+    if conv_first:
+        x = Conv1D(filters, kernel_size=kernel_size, strides=stride, padding='same')(x)
+        if batch_norm:
+            x = BatchNormalization()(x)
+        if activation:
+            x = Activation(activation)(x)
+
+    else:
+        if batch_norm:
+            x = BatchNormalization()(x)
+        if activation:
+            x = Activation(activation)(x)
+        x = Conv1D(filters, kernel_size=kernel_size, strides=stride, padding='same')(x)
+
+    return x
+
+
+# ResNet-18
+def resnet18(input_shape=(3480, 8), num_classes=3):
+    inputs = Input(shape=input_shape)
+    x = inputs
+
+    x = basic_residual_block(x, filters=64, kernel_size=7, stride=2)
+    x = tf.keras.layers.MaxPooling1D(pool_size=3, strides=2, padding="same")(x)
+
+    x = basic_residual_block(x, filters=64, kernel_size=3)
+    x = basic_residual_block(x, filters=64, kernel_size=3)
+
+    x = basic_residual_block(x, filters=128, kernel_size=3, stride=2)
+    x = basic_residual_block(x, filters=128, kernel_size=3)
+
+    x = basic_residual_block(x, filters=256, kernel_size=3, stride=2)
+    x = basic_residual_block(x, filters=256, kernel_size=3)
+
+    x = basic_residual_block(x, filters=512, kernel_size=3, stride=2)
+    x = basic_residual_block(x, filters=512, kernel_size=3)
+
+    x = GlobalAveragePooling1D()(x)
+    outputs = Dense(num_classes, activation='softmax')(x)
+
+    model = tf.keras.Model(inputs, outputs)
+    return model
+
+
+# ResNet-34
+def resnet34(input_shape=(3480, 8), num_classes=3):
+    inputs = Input(shape=input_shape)
+    x = inputs
+
+    x = basic_residual_block(x, filters=64, kernel_size=7, stride=2)
+    x = tf.keras.layers.MaxPooling1D(pool_size=3, strides=2, padding="same")(x)
+
+    for _ in range(3):
+        x = basic_residual_block(x, filters=64, kernel_size=3)
+
+    x = basic_residual_block(x, filters=128, kernel_size=3, stride=2)
+    for _ in range(4):
+        x = basic_residual_block(x, filters=128, kernel_size=3)
+
+    x = basic_residual_block(x, filters=256, kernel_size=3, stride=2)
+    for _ in range(6):
+        x = basic_residual_block(x, filters=256, kernel_size=3)
+
+    x = basic_residual_block(x, filters=512, kernel_size=3, stride=2)
+    for _ in range(3):
+        x = basic_residual_block(x, filters=512, kernel_size=3)
+
+    x = GlobalAveragePooling1D()(x)
+    outputs = Dense(num_classes, activation='softmax')(x)
+
+    model = tf.keras.Model(inputs, outputs)
+    return model
+
+
+# ResNet-50
+def resnet50(input_shape=(3480, 8), num_classes=3):
+    inputs = Input(shape=input_shape)
+    x = inputs
+
+    x = basic_residual_block(x, filters=64, kernel_size=7, stride=2)
+    x = tf.keras.layers.MaxPooling1D(pool_size=3, strides=2, padding="same")(x)
+
+    x = basic_residual_block(x, filters=64, kernel_size=1)
+    x = basic_residual_block(x, filters=64, kernel_size=3)
+    x = basic_residual_block(x, filters=256, kernel_size=1)
+
+    x = basic_residual_block(x, filters=128, kernel_size=1)
+    x = basic_residual_block(x, filters=128, kernel_size=3)
+    x = basic_residual_block(x, filters=512, kernel_size=1)
+
+    x = basic_residual_block(x, filters=256, kernel_size=1)
+    x = basic_residual_block(x, filters=256, kernel_size=3)
+    x = basic_residual_block(x, filters=1024, kernel_size=1)
+
+    x = basic_residual_block(x, filters=512, kernel_size=1)
+    x = basic_residual_block(x, filters=512, kernel_size=3)
+    x = basic_residual_block(x, filters=2048, kernel_size=1)
+
+    x = GlobalAveragePooling1D()(x)
+    outputs = Dense(num_classes, activation='softmax')(x)
+
+    model = tf.keras.Model(inputs, outputs)
+    return model
 
 def best_model_3classes(shape=(8, 3480)):
     inputs = ks.Input(shape=shape)
@@ -96,6 +202,7 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='r
             val_data_A
         ))
         val_labels = len(val_data_C) * [0] + len(val_data_S) * [1] + len(val_data_A) * [2]
+
         train_data_C = np.concatenate((
             dataset_C_tmp[:num_validation_samples * fold],
             dataset_C_tmp[num_validation_samples * (fold + 1):]
@@ -114,11 +221,24 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='r
             train_data_A
         ))
         train_labels = len(train_data_C) * [0] + len(train_data_S) * [1] + len(train_data_A) * [2]
-        print(train_data.shape)
+
+        if model_type.startswith('resnet'):
+            train_data = train_data.transpose((0, 2, 1))
+            print(train_data.shape)
+            val_data = val_data.transpose((0, 2, 1))
+
         if model_type == 'cnn':
             model = best_model_3classes()
-        else:
+        elif model_type == 'rnn':
             model = best_rnn_3classes()
+        elif model_type == 'resnet18':
+            model = resnet18()
+        elif model_type == 'resnet34':
+            model = resnet34()
+        elif model_type == 'resnet50':
+            model = resnet50()
+        else:
+            model = best_model_3classes()
 
         model.compile(optimizer='adam',
                       loss='sparse_categorical_crossentropy',
@@ -182,11 +302,11 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='r
            validation_losses_average, validation_accuracies_average
 
 
-
 def iterated_k_fold(iterations, k):
     print('Create initial dataset and labels')
     dataset_C, dataset_S, dataset_A, name_C, name_S, name_A = create_dataset_for_k_fold(
         "all/")
+
     tla_average = []  # train loss
     taa_average = []  # train accuracy
     vla_average = []  # validation loss
@@ -202,7 +322,7 @@ def iterated_k_fold(iterations, k):
         np.save(f'permutation_S_{i}.npy', p)
         dataset_A_tmp, p = permute(dataset_A)
         np.save(f'permutation_A_{i}.npy', p)
-        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='rnn')
+        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='resnet18')
         vla_average.append(vla)
         vaa_average.append(vaa)
         tla_average.append(tla)
