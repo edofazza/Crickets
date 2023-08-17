@@ -285,9 +285,9 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='r
 
     print('Final results:')
     train_losses_average = np.average(train_losses)
-    print(f'\t-Average test losses:{train_losses_average}')
+    print(f'\t-Average train losses:{train_losses_average}')
     train_accuracies_average = np.average(train_accuracies)
-    print(f'\t-Average test accuracies:{train_accuracies_average}')
+    print(f'\t-Average train accuracies:{train_accuracies_average}')
     validation_losses_average = np.average(val_losses)
     print(f'\t-Average validation losses:{validation_losses_average}')
     validation_accuracies_average = np.average(val_accuracies)
