@@ -322,7 +322,7 @@ def iterated_k_fold(iterations, k):
         np.save(f'permutation_S_{i}.npy', p)
         dataset_A_tmp, p = permute(dataset_A)
         np.save(f'permutation_A_{i}.npy', p)
-        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='resnet18')
+        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='resnet50')
         vla_average.append(vla)
         vaa_average.append(vaa)
         tla_average.append(tla)
@@ -337,8 +337,8 @@ def iterated_k_fold(iterations, k):
     print('[END] Iterated k-fold cross validation loop')
     print(f'\t-Mean average validation losses:{np.average(vla_average)}')
     print(f'\t-Mean average validation accuracies:{np.average(vaa_average)}')
-    print(f'\t-Mean average test losses:{np.average(tla_average)}')
-    print(f'\t-Mean average test accuracies:{np.average(taa_average)}')
+    print(f'\t-Mean average train losses:{np.average(tla_average)}')
+    print(f'\t-Mean average train accuracies:{np.average(taa_average)}')
 
 
 if __name__ == '__main__':
