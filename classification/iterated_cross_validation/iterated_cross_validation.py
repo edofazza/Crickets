@@ -3,7 +3,44 @@ from tensorflow import keras as ks
 import numpy as np
 import os
 import gc
-from tensorflow.keras.layers import Input, Conv1D, BatchNormalization, Activation, Add, GlobalAveragePooling1D, Dense
+from tensorflow.keras.layers import Input, Conv1D, BatchNormalization, Activation, Add, GlobalAveragePooling1D, Dense, Flatten, MaxPooling1D
+
+
+def vgg16_1d(input_shape=(3480, 8), num_classes=3):
+    inputs = Input(shape=input_shape)
+
+    # Block 1
+    x = Conv1D(64, kernel_size=3, activation='relu', padding='same')(inputs)
+    x = MaxPooling1D(pool_size=2, strides=2)(x)
+
+    # Block 2
+    x = Conv1D(128, kernel_size=3, activation='relu', padding='same')(x)
+    x = MaxPooling1D(pool_size=2, strides=2)(x)
+
+    # Block 3
+    x = Conv1D(256, kernel_size=3, activation='relu', padding='same')(x)
+    x = Conv1D(256, kernel_size=3, activation='relu', padding='same')(x)
+    x = MaxPooling1D(pool_size=2, strides=2)(x)
+
+    # Block 4
+    x = Conv1D(512, kernel_size=3, activation='relu', padding='same')(x)
+    x = Conv1D(512, kernel_size=3, activation='relu', padding='same')(x)
+    x = MaxPooling1D(pool_size=2, strides=2)(x)
+
+    # Block 5
+    x = Conv1D(512, kernel_size=3, activation='relu', padding='same')(x)
+    x = Conv1D(512, kernel_size=3, activation='relu', padding='same')(x)
+    x = MaxPooling1D(pool_size=2, strides=2)(x)
+
+    # Flatten and fully connected layers
+    x = Flatten()(x)
+    x = Dense(4096, activation='relu')(x)
+    x = Dense(4096, activation='relu')(x)
+    outputs = Dense(num_classes, activation='softmax')(x)
+
+    model = tf.keras.Model(inputs, outputs)
+    return model
+
 
 # Basic 1D Residual Block
 def basic_residual_block(x, filters, kernel_size, stride=1, activation='relu', batch_norm=True, conv_first=True):
@@ -222,7 +259,7 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='r
         ))
         train_labels = len(train_data_C) * [0] + len(train_data_S) * [1] + len(train_data_A) * [2]
 
-        if model_type.startswith('resnet'):
+        if model_type.startswith('resnet') or model_type.startswith('vgg'):
             train_data = train_data.transpose((0, 2, 1))
             print(train_data.shape)
             val_data = val_data.transpose((0, 2, 1))
@@ -237,6 +274,8 @@ def k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, iter_i, model_type='r
             model = resnet34()
         elif model_type == 'resnet50':
             model = resnet50()
+        elif model_type == 'vgg16':
+            model = vgg16_1d()
         else:
             model = best_model_3classes()
 
@@ -322,7 +361,7 @@ def iterated_k_fold(iterations, k):
         np.save(f'permutation_S_{i}.npy', p)
         dataset_A_tmp, p = permute(dataset_A)
         np.save(f'permutation_A_{i}.npy', p)
-        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='resnet50')
+        tla, taa, vla, vaa = k_fold(k, dataset_C_tmp, dataset_S_tmp, dataset_A_tmp, i, model_type='vgg16')
         vla_average.append(vla)
         vaa_average.append(vaa)
         tla_average.append(tla)

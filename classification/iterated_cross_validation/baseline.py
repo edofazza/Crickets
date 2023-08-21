@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Conv1D, BatchNormalization, Activation, Add, GlobalAveragePooling1D, Dense
+import tensorflow as tf
 
 
 # Basic 1D Residual Block
